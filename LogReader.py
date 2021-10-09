@@ -1,4 +1,4 @@
-from Event import Event
+from Neriak import Event
 import time, sys
 
 class LogReader:
