@@ -30,8 +30,7 @@ class Controller():
                 time.sleep(0.5)
         
         except KeyboardInterrupt:
-            reader.stop()
-            agent.stop()
+            sys.exit(0)
 
 class Persona:
     """A persona encapsulates the logic behind how a character will be played. Two personas might play the same class very differently depending on the desired goal."""
