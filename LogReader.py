@@ -1,5 +1,5 @@
 from Event import Event
-import time
+import time, sys
 
 class LogReader:
     """Handles continuously reading the log file and sends events to a queue based on triggers."""
@@ -49,5 +49,9 @@ class LogReader:
                 m = task.trigger.regex.match(line)
                 if (m):
                     self.queue.put(Event(task.label, m))
+
+    def stop(self):
+        self.log_file.close()
+        sys.exit()
 
         

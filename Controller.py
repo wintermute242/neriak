@@ -2,7 +2,8 @@ from LogReader import LogReader
 from Agent import Agent
 import queue, threading, time
 
-class Dispatcher():
+class Controller():
+    """Coordinates setup of worker threads and shared memory objects."""
     def __init__(self, persona):
         self.queue  = queue.Queue()
         self.persona = persona
@@ -20,11 +21,15 @@ class Dispatcher():
                 Agent(persona, self.queue).run,
                 daemon=True
             )
+        
         reader.start()
         agent.start()
+        
+        # Go into an infinite loop and wait for the program to be terminated.
         try:
             while True:
-                time.sleep(1)
+                time.sleep(0.5)
+        
         except KeyboardInterrupt:
             reader.stop()
             agent.stop()

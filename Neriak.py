@@ -1,6 +1,6 @@
 import os
 from Persona import Persona
-from Dispatcher import Dispatcher
+from Controller import Controller
 from Action import Action
 from Task import Task
 from Trigger import Trigger
@@ -19,5 +19,5 @@ actions = [action]
 t = Task('print_line',trigger,actions)
 persona.add_task(t)
 
-dispatcher = Dispatcher(persona)
-dispatcher.run()
+controller = Controller(persona)
+controller.run()

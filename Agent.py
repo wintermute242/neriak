@@ -1,4 +1,4 @@
-import queue, time
+import queue, time, sys
 
 class Agent:
     def __init__(self, persona, queue):
@@ -16,3 +16,6 @@ class Agent:
             except queue.Empty:
                 print("Nothing seen in queue")
                 time.sleep(0.1)
+
+    def stop(self):
+        sys.exit()
