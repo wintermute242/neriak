@@ -55,6 +55,7 @@ class Persona:
         task.execute(data)
 
 class Agent:
+    """Manages the player agent by listening for events and performing actions."""
     def __init__(self, persona, queue):
         self.queue   = queue
         self.persona = persona
@@ -75,6 +76,7 @@ class Agent:
         sys.exit()
 
 class Task:
+    """A task has a label which corresponds to a set of actions which the task may execute."""
     def __init__(self, label, trigger, actions):
         self.label   = label
         self.actions = []
@@ -87,12 +89,13 @@ class Task:
             action.execute(data)
 
 class Trigger:
-    """An object encapsulating a regex and a trigger name."""
+    """A named regex which when matched triggers an event."""
     def __init__(self, name, regex):
         self.name  = name
         self.regex = re.compile(regex)
 
 class Action:
+    """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
     def __init__(self, name):
         self.name = name
         self.sequence = []
@@ -106,6 +109,7 @@ class Action:
             item(data)
 
 class Event:
+    """When a Trigger is matched, an event is created which binds the trigger name and the returned regex match object."""
     def __init__(self, task_label, match):
         """An object to encapsulate a task label and a regular expression match."""
         self.label  = task_label
