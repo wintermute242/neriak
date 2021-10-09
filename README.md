@@ -11,3 +11,14 @@ At the highest level is something called the *Agent*, which is the top level con
 An agent operates by performing *actions*. An *action* is composed of a *task* and one or more *triggers*. A task defines the actual output sent by the agent to the game client which accomplishes the desired action. This can be any combination of button presses or mouse clicks. A trigger defines exactly what circumstances will cause an agent to perform the associated task. This could be as simple as seeing an expected trigger word in the log text, or as complex as keeping track of damage received over a particular interval to trigger casting a heal spell. One or more triggers may be associated with a single task. 
 
 **A Simple Example**
+
+
+NOTES:
+
+** DEPENDANCIES **
+
+pip3 install pyautogui
+pip3 install pydirectinput
+pip3 install requests
+pip3 install pywin32
+
