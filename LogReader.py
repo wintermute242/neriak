@@ -1,5 +1,4 @@
-from Neriak import Event
-import time, sys
+import time, sys, Neriak
 
 class LogReader:
     """Handles continuously reading the log file and sends events to a queue based on triggers."""
@@ -48,7 +47,7 @@ class LogReader:
             for task in self.event_triggers:
                 m = task.trigger.regex.match(line)
                 if (m):
-                    self.queue.put(Event(task.label, m))
+                    self.queue.put(Neriak.Event(task.label, m))
 
     def stop(self):
         self.log_file.close()
