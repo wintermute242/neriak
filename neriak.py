@@ -2,7 +2,12 @@ from LogReader import LogReader
 import queue, threading, time, re, sys
 
 class Controller():
-    """Coordinates setup of worker threads and shared memory objects."""
+    """
+    Responsible for setting up the shared objects used for inter-thread
+    communication and then creating the independent producer and consumer worker threads. 
+    This is the 'main' thread which responds to user input like keyboard interrupts to 
+    stop all execution.
+    """
     def __init__(self, persona):
         self.queue  = queue.Queue()
         self.persona = persona
@@ -11,6 +16,8 @@ class Controller():
         persona = self.persona
         queue = self.queue
 
+        # Set daemon flag so that new threads stop
+        # once the main thread calls system.exit().
         reader = threading.Thread(target=
                 LogReader(persona, self.queue).run,
                 daemon=True
@@ -21,10 +28,16 @@ class Controller():
                 daemon=True
             )
         
+        # Start execution of producer and consumer threads
+        # which will now run independently so long as the
+        # main thread is alive.
         reader.start()
         agent.start()
         
-        # Go into an infinite loop and wait for the program to be terminated.
+        # Control is returned to main thread. Periodically
+        # check whether the user wants to end the program.
+        # When detected, this will abrubtly terminate all 
+        # daemon threads as well.
         try:
             while True:
                 time.sleep(0.5)
@@ -33,7 +46,15 @@ class Controller():
             sys.exit(0)
 
 class Persona:
-    """A persona encapsulates the logic behind how a character will be played. Two personas might play the same class very differently depending on the desired goal."""
+    """
+    A persona encapsulates the logic of how a character will be played. 
+    Two personas might play the same class very differently depending on 
+    the desired goal.
+    
+    The intent is that new player personas will be implemented as sub-classes of Persona,
+    which handles implementing the methods needed to setup basic inter-thread communication
+    and event handling so that the sub-class can concern itself with the player logic.
+    """
     def __init__(self, name, log_file_path):
         self.name = name
         self.log_file_path = log_file_path
@@ -55,43 +76,69 @@ class Persona:
 
 class Agent:
     """Manages the player agent by listening for events and performing actions."""
-    def __init__(self, persona, queue):
+    def __init__(self, persona, queue, sleep_time=0.1):
         self.queue   = queue
         self.persona = persona
+        self.sleep_time = sleep_time
 
     def run(self):
-        """Continuously check queue for new events"""
+        """Continuously check queue for new events and manage flow of executionm"""
         print("The agent has started.")
+        
+        # Looking for the main event loop handling triggered events? This is it.
+        # The agent will continuosly check for triggered events and send them
+        # to the persona to be handled in a first-in-first-out order.
+        #
+        # Either an event will be handled or, if there are no events, the agent
+        # will temporarily go to sleep. After either of these cases complete the agent
+        # will then be given an opportunity to update its state and do whatever other
+        # work it needs to do.
+        #
+        # This is important as it allows the agent to build and maintain a more
+        # complex internal state and respond to circumstances over a longer time horizon 
+        # than reacting immediately to a single event. Things like measuring damage
+        # taken over a certain interval, or doing a thing every n seconds might
+        # be implemented in update(). It is a way to periodically return control of 
+        # execution back to the persona to do whatever it needs to do.
         while True:
             try:
                 event = self.queue.get()
                 print(f"Got event from queue: {event.label}")
+                # Call on the persona to handle the event found
                 self.persona.process_event(event)
+
             except queue.Empty:
                 print("Nothing seen in queue")
-                time.sleep(0.1)
+                time.sleep(self.sleep_time)
+            
+            finally:
+                self.persona.update()
 
     def stop(self):
         sys.exit()
 
-class Task:
-    """A task has a label which corresponds to a set of actions which the task may execute."""
-    def __init__(self, label, trigger, actions):
-        self.label   = label
-        self.actions = []
-        self.trigger = trigger
-        for action in actions:
-            self.actions.append(action)
-
-    def execute(self, data):
-        for action in self.actions:
-            action.execute(data)
-
 class Trigger:
-    """A named regex which when matched triggers an event."""
+    """
+    A named regex which when matched triggers an event. 
+    This is will be matched against every incoming line from log files.
+    """
     def __init__(self, name, regex):
         self.name  = name
         self.regex = re.compile(regex)
+
+class Event:
+    """
+    When a Trigger is matched, an event is created which binds 
+    the trigger name and the returned regex match object. Ideally
+    the regex is designed so that the match groups contain specific
+    values of interest for an action to respond to. This can be the
+    name of a spell, a character, or the amount of damage taken or 
+    healed.
+    """
+    def __init__(self, task_label, match):
+        """An object to encapsulate a task label and a regular expression match."""
+        self.label  = task_label
+        self.match  = match
 
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
@@ -107,9 +154,17 @@ class Action:
         for item in self.sequence:
             item(data)
 
-class Event:
-    """When a Trigger is matched, an event is created which binds the trigger name and the returned regex match object."""
-    def __init__(self, task_label, match):
-        """An object to encapsulate a task label and a regular expression match."""
-        self.label  = task_label
-        self.match  = match
+class Task:
+    """A task has a label which corresponds to a set of actions which the task may execute."""
+    def __init__(self, label, trigger, actions):
+        self.label   = label
+        self.actions = []
+        self.trigger = trigger
+        for action in actions:
+            self.actions.append(action)
+
+    def execute(self, data):
+        for action in self.actions:
+            action.execute(data)
+
+

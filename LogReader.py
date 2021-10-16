@@ -1,7 +1,11 @@
 import time, sys, Neriak
 
 class LogReader:
-    """Handles continuously reading the log file and sends events to a queue based on triggers."""
+    """
+    Designed to run as a producer thread continuously reading the log file and 
+    for every specified trigger will send events to a queue shared with the 
+    Agent consumer thread to be handled.
+    """
     def __init__(self, persona, queue, sleep=0.1):
         self.event_triggers = []
         self.persona        = persona
@@ -11,6 +15,7 @@ class LogReader:
         try:
             self.log_file = open(self.log_file_path, 'r')
             print(f"Opened log file '{self.log_file_path}'")
+        
         except Exception as e:
             print(e)
         
@@ -21,23 +26,26 @@ class LogReader:
 
 
     def register_event(self, tasks):
-        """Stores one or more event tasks of class Task."""
+        """Stores one or more tasks provided by the persona."""
         for task in tasks:
             self.event_triggers.append(task)
 
     def generate_next_line(self):
-        """A generator to yield the next line in the log file. If no new lines or found then sleep."""
+        """A generator to yield the next line in the log file. If no new lines are found, then sleep."""
         while True:
             line = self.log_file.readline()
             if not line:
                 time.sleep(self.sleep)
                 continue
+            
             yield line
     
     def run(self):
-        """Begin reading the log file and comparing lines to the current list of triggers."""
+        """Main execution of the thread begins here."""
         print("The log reader has started.")
-        self.log_file.seek(0,2) # Seek to the end of the current file
+        # Initialize the reader to seek to the end of the 
+        # current file so that we are reading fresh entries only.
+        self.log_file.seek(0,2) 
         
         for line in self.generate_next_line():
             # Every task has a label and a trigger. A trigger is a compiled regex object which is compared against each line from the log file.
@@ -48,9 +56,5 @@ class LogReader:
                 m = task.trigger.regex.match(line)
                 if (m):
                     self.queue.put(Neriak.Event(task.label, m))
-
-    def stop(self):
-        self.log_file.close()
-        sys.exit()
 
         
