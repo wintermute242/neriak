@@ -155,7 +155,7 @@ class Action:
             item(data)
 
 class Task:
-    """A task has a label which corresponds to a set of actions which the task may execute."""
+    """A task is a trigger and a set of one or more actions which has a label that identifies it."""
     def __init__(self, label, trigger, actions):
         self.label   = label
         self.actions = []

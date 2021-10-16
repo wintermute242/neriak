@@ -2,17 +2,19 @@ from Neriak import *
 import os
 
 class Default(Persona):
-    # CHANGE THESE VALUES
+    #--> CHANGE THESE VALUES
     character_name = "player" # Capitalized, set to your character name
     server_name = "server" # Lowercase, set to your server name
     log_dir = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest', 'Logs') # Change this to your EQ log directory
     
     log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
-    log_path = os.path.join(log_dir, log_name) 
+    log_path = os.path.join(log_dir, log_name)
+    
+    #--> Initialize any persona specific variables here
 
     # Initialize the superclass
     def __init__(self):
-        # Add setup here like triggers, actions, etc
+        #--> Add setup here like triggers, actions, etc
         
         
         # This is the last thing that should get called. Don't put anything after this.
@@ -30,7 +32,7 @@ class Default(Persona):
         parameter passed to Agent.
         """
         # This gets called roughly every tenth of a second by default. You can do this like
-        # check timers to see how much time has elapsed, and take actions if necessary. 
+        # check timers to see how much time has elapsed, and take actions if necessary.
 
         
     
