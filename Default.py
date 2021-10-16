@@ -5,7 +5,9 @@ class Default(Persona):
     #--> CHANGE THESE VALUES
     character_name = "player" # Capitalized, set to your character name
     server_name = "server" # Lowercase, set to your server name
-    log_dir = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest', 'Logs') # Change this to your EQ log directory
+    eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+    log_dir = os.path.join(eq_path, 'Logs')
+    key_file = "default_keys.ini"
     
     log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
     log_path = os.path.join(log_dir, log_name)

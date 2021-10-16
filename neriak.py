@@ -55,10 +55,31 @@ class Persona:
     which handles implementing the methods needed to setup basic inter-thread communication
     and event handling so that the sub-class can concern itself with the player logic.
     """
-    def __init__(self, name, log_file_path):
+    def __init__(self, name, log_file_path, key_file):
         self.name = name
         self.log_file_path = log_file_path
+        self.key_file = key_file
         self.tasks = {}
+        self.keys = self.load_keys()
+
+    def load_keys(self) -> dict:
+        """
+        Loads key/value pairs from a simple ini file. The key is an arbitrary name to give to
+        a particular keypress so as to better document what is being accomplished by an action.
+        """
+        keys = {}
+        try:
+            with open(self.key_file) as key_file:
+                for line in key_file:
+                    if '=' in line:
+                        key, value = line.split('=')
+                        key = key.strip().lower()
+                        value = value.strip().lower()
+                        keys[key] = value
+
+        except Exception as e:
+            print(e)
+
 
     def add_task(self, task):
         self.tasks[task.label] = task
