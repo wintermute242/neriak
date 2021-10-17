@@ -1,21 +1,23 @@
 ***Project Neriak Overview***
 
-**Summary**
+**Project Goals**
 
 The goal for this project is to provide the means to meaningfully streamline the control of a player character in *EverQuest,* from automating repetitive actions up to complete autonomous control in certain cases. 
 
-**Components**
+**Overview**
 
-At the highest level is something called the *Agent*, which is the top level construct which sends keyboard and mouse input to the game client based on input from the game logs. This could be activated by saying a trigger word to the agent in game, or by responding to events as read from the log files. 
+Neriak implements a player agent in the form of a multi-threaded producer and consumer model with setup and shared resource initialization coordinated by a controller. Player agent behaviors are defined in a 
+custom *Persona* which is implemented as a Python Module and Class. In this class are defined all member variables and functions that maintain state an perform actions on behalf of the agent. The name of the
+Persona module you wish to load is passed into the program as an argument, otherwise the *Default* persona is used.
 
-An agent operates by performing *actions*. An *action* is composed of a *task* and one or more *triggers*. A task defines the actual output sent by the agent to the game client which accomplishes the desired action. This can be any combination of button presses or mouse clicks. A trigger defines exactly what circumstances will cause an agent to perform the associated task. This could be as simple as seeing an expected trigger word in the log text, or as complex as keeping track of damage received over a particular interval to trigger casting a heal spell. One or more triggers may be associated with a single task. 
 
 **A Simple Example**
 
+TODO: Add examples
 
-NOTES:
+**DEPENDANCIES**
 
-** DEPENDANCIES **
+TODO: Add virtual environment support
 
 pip3 install pyautogui
 pip3 install pydirectinput
