@@ -10,12 +10,16 @@ Neriak implements a player agent in the form of a multi-threaded producer and co
 custom *Persona* which is implemented as a Python Module and Class. In this class are defined all member variables and functions that maintain state an perform actions on behalf of the agent. The name of the
 Persona module you wish to load is passed into the program as an argument, otherwise the *Default* persona is used.
 
+This design follows the pattern of dependency injection such that all behavior is defined in the module that is passed into the Controller, and control of execution is periodically returned to the persona when
+either an event is triggered or after a certain amount of time has passed. This not only allows the persona to react immediately to events as they occur, but also because control is periodically returned, even if no events 
+are triggered the persona is given opportunity to update internal state and do other things like check timers that have been started, and act if necessary. 
+
 
 **A Simple Example**
 
 TODO: Add examples
 
-**DEPENDANCIES**
+**DEPENDENCIES**
 
 TODO: Add virtual environment support
 

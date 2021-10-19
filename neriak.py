@@ -18,6 +18,7 @@ class Persona:
         self.tasks = {}
         self.keys = self.load_keys()
 
+
     def load_keys(self) -> dict:
         """
         Loads key/value pairs from a simple ini file. The key is an arbitrary name to give to
@@ -40,16 +41,21 @@ class Persona:
     def add_task(self, task):
         self.tasks[task.label] = task
 
+
     def get_tasks(self):
         return self.tasks.values()
 
+
     def get_task_by_label(self, name):
         return self.tasks[name]
+
 
     def process_event(self, event):
         data = event.match
         task = self.get_task_by_label(event.label)
         task.execute(data)
+
+
 
 class Trigger:
     """
@@ -59,6 +65,8 @@ class Trigger:
     def __init__(self, name, regex):
         self.name  = name
         self.regex = re.compile(regex)
+
+
 
 class Event:
     """
@@ -74,13 +82,14 @@ class Event:
         self.label  = task_label
         self.match  = match
 
+
+
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
-    def __init__(self, func=None):
+    def __init__(self, func):
+        print(f"Action: Passed in as func: {func}")
         self.sequence = []
-        # Syntactic sugar for cases when there will only be one sequence function
-        if func:
-            self.add_sequence_item(func)
+        self.add_sequence_item(func)
 
 
     def add_sequence_item(self, func):
@@ -89,8 +98,13 @@ class Action:
 
     def execute(self, data):
         """Pass in the data from the event to each function in the sequence"""
+        print("Execute() called in action")
+        print(self.sequence)
         for item in self.sequence:
+            print("Executing action")
             item(data)
+
+
 
 class Task:
     """A task is a trigger and a set of one or more actions which has a label that identifies it."""
@@ -106,8 +120,12 @@ class Task:
         self.actions.append(action)
 
     def execute(self, data):
+        print(f"Executing task {self.label}")
         for action in self.actions:
             action.execute(data)
+            print("Called action.execute()")
+
+
 
 class Controller():
     """
@@ -120,6 +138,7 @@ class Controller():
         self.queue  = queue.Queue()
         self.persona = persona
     
+
     def run(self):
         persona = self.persona
         queue = self.queue
@@ -153,12 +172,15 @@ class Controller():
         except KeyboardInterrupt:
             sys.exit(0)
 
+
+
 class Agent:
     """Manages the player agent by listening for events and performing actions."""
     def __init__(self, persona, queue, sleep_time=0.1):
         self.queue   = queue
         self.persona = persona
         self.sleep_time = sleep_time
+
 
     def run(self):
         """Continuously check queue for new events and manage flow of executionm"""
@@ -192,6 +214,3 @@ class Agent:
             
             finally:
                 self.persona.update()
-
-    def stop(self):
-        sys.exit()

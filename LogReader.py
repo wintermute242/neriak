@@ -1,4 +1,4 @@
-import time, sys, Neriak
+import time, re, Neriak
 
 class LogReader:
     """
@@ -28,6 +28,7 @@ class LogReader:
     def register_event(self, tasks):
         """Stores one or more tasks provided by the persona."""
         for task in tasks:
+            print(f"Loading trigger: {task.trigger.name} - {task.trigger.regex.pattern}")
             self.event_triggers.append(task)
 
     def generate_next_line(self):
@@ -48,13 +49,17 @@ class LogReader:
         self.log_file.seek(0,2) 
         
         for line in self.generate_next_line():
+            print(f"LogReader: {line}",end="")
+
             # Every task has a label and a trigger. A trigger is a compiled regex object which is compared against each line from the log file.
             # If a match is found, the label and the associated match object are bundled into an Event object and put
             # into the thread-safe queue. The event will be retrieved and the label evaluated to a matching Task object.
             # This task is then handed the match object (which may contain data it needs) and executed.
             for task in self.event_triggers:
-                m = task.trigger.regex.match(line)
+                #print(f"Checking {task.trigger.regex.pattern}...")
+                m = task.trigger.regex.search(line,re.IGNORECASE)
                 if (m):
+                    print(f"Matched trigger: {task.trigger.name}")
                     self.queue.put(Neriak.Event(task.label, m))
 
         

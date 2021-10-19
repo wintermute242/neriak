@@ -1,19 +1,19 @@
 from Neriak import *
 from Timer import Timer
-import os
+import os, GameInput
 
 class Warrior(Persona):
     # Initialize the superclass
     def __init__(self):
-        character_name = "Leviathan" # Capitalized, set to your character name
-        server_name = "mischief" # Lowercase, set to your server name
-        eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
-        log_dir = os.path.join(eq_path, 'Logs')
-        key_file = "warrior_keys.ini"
+        self.character_name = "Leviathan" # Capitalized, set to your character name
+        self.server_name = "mischief" # Lowercase, set to your server name
+        self.eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+        self.log_dir = os.path.join(self.eq_path, 'Logs')
+        self.key_file = "warrior_keys.ini"
     
-        log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
-        log_path = os.path.join(log_dir, log_name)
-        timers = {} # Name string : Timer object
+        self.log_name = f'eqlog_{self.character_name.lower().capitalize()}_{self.server_name.lower()}.txt'
+        self.log_path = os.path.join(self.log_dir, self.log_name)
+        self.timers = {} # Name string : Timer object
 
         # Add any persona specific variables here
         
@@ -46,12 +46,13 @@ class Warrior(Persona):
         # Check if we need to swap to avatar
         if self.timers['avatar'].alarmed():
             # Swap to avatar weapons
+            GameInput.send(self.keys['avatar'])
 
     def avatar_proc(self, data):
         """Called whenever avatar procs"""
         try:
             self.timers['avatar'].restart()
-
+            
         except KeyError:
             timer = Timer()
             alarm_seconds = 240 # 4 minutes

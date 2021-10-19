@@ -1,30 +1,81 @@
 from Neriak import *
-import os
+from Timer import Timer
+import os, GameInput
 
 class Cleric(Persona):
-    # Set character, server, and installation path so that log can be located
-    character_name = "revelation" # Capitalized
-    server_name = "mischief" # Lowercase
-    eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
-    log_dir = os.path.join(eq_path, 'Logs')
-    log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
-    log_path = os.path.join(log_dir, log_name) 
-
-    # Initialize the superclass
     def __init__(self):
-        super().__init__(__name__, self.log_path)
+        self.character_name = "Revelation" # Capitalized, set to your character name
+        self.server_name = "mischief" # Lowercase, set to your server name
+        self.eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+        self.log_dir = os.path.join(self.eq_path, 'Logs')
+        self.key_file = "cleric_keys.ini"
+    
+        self.log_name = f'eqlog_{self.character_name.lower().capitalize()}_{self.server_name.lower()}.txt'
+        self.log_path = os.path.join(self.log_dir, self.log_name)
+        self.timers = {} # Name string : Timer object
+
+        super().__init__(__name__, self.log_path, self.key_file)
+
+        # Add any persona specific variables here
+        self.casting_cleric_pant = False
+
+        # Add setup here like triggers, actions, etc
+        
+        # -- 1 -- Auto Cleric Pants
+        pants_toggle_trigger = Trigger("pants_toggle", "] (?:Leshy|Leviathan) (?:tells you|tells the group), 'toggle cleric pants'")
+        pants_toggle_action  = Action(func=self.toggle_cleric_pants)
+        pants_toggle_task    = Task('toggle_cleric_pants',pants_toggle_trigger, action=pants_toggle_action)
+        self.add_task(pants_toggle_task)
+
+        pants_interrupted_trigger = Trigger("pants_interrupted", "Your Word of Health spell is interrupted.")
+        print(self.cast_cleric_pants)
+        pants_interrupted_action = Action(self.cast_cleric_pants)
+        pants_interrupted_task = Task('pants_interrupted_task', pants_interrupted_trigger, action=pants_interrupted_action)
+        self.add_task(pants_interrupted_task)
+        
     
     def load():
         """Returns a new instance of the class"""
         return Cleric()
 
-    def update():
+    def update(self):
         """
         Any long term state can be maintained here. This will get called so that flow of 
         execution can be periodically returned to the player persona. The amount of time between
         calls is a either the time needed to process a particular event or the sleep_time
         parameter passed to Agent.
         """
+        try:
+            if self.timers['cleric_pants'].alarmed():
+                self.cast_cleric_pants()
+            
+        except KeyError:
+            pass
+
+        
+    def toggle_cleric_pants(self):
+        # If we are already set to auto cast, then toggle off
+        if self.cast_cleric_pants:
+            self.casting_cleric_pants = False
+            GameInput.send('duck')
+            try:
+                del self.timers['cleric_pants']
+            
+            except KeyError:
+                pass
+    
+        # Otherwise toggle on
+        else:
+            self.casting_cleric_pants = True
+            self.cast_cleric_pants()
+            
+
+    def cast_cleric_pants(self):
+        self.timers['cleric_pants'] = Timer()
+        self.timers['cleric_pants'].set_alarm(14)
+        print("Casting cleric pants!")
+        GameInput.send('cleric_pants')
+        self.timers['cleric_pants'].start()
 
 
     
