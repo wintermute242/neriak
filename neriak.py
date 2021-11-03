@@ -1,5 +1,5 @@
 from LogReader import LogReader
-import queue, threading, time, re, sys
+import queue, threading, time, re, keyboard
 
 class Persona:
     """
@@ -15,7 +15,9 @@ class Persona:
         self.name = name
         self.log_file_path = log_file_path
         self.key_file = key_file
-        self.tasks = {}
+        self.triggers = []
+        self.actions = []
+
         self.keys = self.load_keys()
 
 
@@ -37,25 +39,21 @@ class Persona:
         except Exception as e:
             print(e)
 
-
-    def add_task(self, task):
-        self.tasks[task.label] = task
-
-
-    def get_tasks(self):
-        return self.tasks.values()
-
-
-    def get_task_by_label(self, name):
-        return self.tasks[name]
-
+    def get_action_by_name(self, name):
+        """Matches a triggered event to an action"""
+        action = None
+        for a in self.actions:
+            if name == a.name:
+                action = a
+                break
+        
+        return action
 
     def process_event(self, event):
+        """Event handler"""
         data = event.match
-        task = self.get_task_by_label(event.label)
-        task.execute(data)
-
-
+        action = self.get_action_by_name(event.name)
+        action.execute(data)
 
 class Trigger:
     """
@@ -66,8 +64,6 @@ class Trigger:
         self.name  = name
         self.regex = re.compile(regex)
 
-
-
 class Event:
     """
     When a Trigger is matched, an event is created which binds 
@@ -77,55 +73,21 @@ class Event:
     name of a spell, a character, or the amount of damage taken or 
     healed.
     """
-    def __init__(self, task_label, match):
-        """An object to encapsulate a task label and a regular expression match."""
-        self.label  = task_label
-        self.match  = match
-
-
+    def __init__(self, name, match):
+        """An object to encapsulate a task name and a regular expression match object."""
+        self.name  = name
+        self.match = match
 
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
-    def __init__(self, func):
-        #print(f"Action: Passed in as func: {func}")
-        self.sequence = []
-        self.add_sequence_item(func)
-
-
-    def add_sequence_item(self, func):
-        """Take a function and appends it to a list of items to be executed."""
-        self.sequence.append(func)
+    def __init__(self, name, func):
+        self.name = name
+        self.func = func
 
     def execute(self, data):
         """Pass in the data from the event to each function in the sequence"""
-        print("Execute() called in action")
-        #print(self.sequence)
-        for item in self.sequence:
-            print("Executing action")
-            item(data)
-
-
-
-class Task:
-    """A task is a trigger and a set of one or more actions which has a label that identifies it."""
-    def __init__(self, label, trigger, action=None):
-        self.label   = label
-        self.actions = []
-        self.trigger = trigger
-        # Syntactic sugar for cases when there will only be one action
-        if action:
-            self.add_action(action)
-
-    def add_action(self, action):
-        self.actions.append(action)
-
-    def execute(self, data):
-        print(f"Executing task {self.label}")
-        for action in self.actions:
-            action.execute(data)
-            print("Called action.execute()")
-
-
+        print("Executing action")
+        self.func(data)
 
 class Controller():
     """
@@ -138,7 +100,6 @@ class Controller():
         self.queue  = queue.Queue()
         self.persona = persona
     
-
     def run(self):
         persona = self.persona
         queue = self.queue
@@ -146,12 +107,12 @@ class Controller():
         # Set daemon flag so that new threads stop
         # once the main thread calls system.exit().
         reader = threading.Thread(target=
-                LogReader(persona, self.queue).run,
+                LogReader(persona, queue).run,
                 daemon=True
             )
         
         agent = threading.Thread(target=
-                Agent(persona, self.queue).run,
+                Agent(persona, queue).run,
                 daemon=True
             )
         
@@ -161,18 +122,8 @@ class Controller():
         reader.start()
         agent.start()
         
-        # Control is returned to main thread. Periodically
-        # check whether the user wants to end the program.
-        # When detected, this will abrubtly terminate all 
-        # daemon threads as well.
-        try:
-            while True:
-                time.sleep(0.5)
-        
-        except KeyboardInterrupt:
-            sys.exit(0)
-
-
+        # Block until the hotkey combination is detected at which point the program exits
+        keyboard.wait('ctrl+shift+z')
 
 class Agent:
     """Manages the player agent by listening for events and performing actions."""
@@ -180,7 +131,6 @@ class Agent:
         self.queue   = queue
         self.persona = persona
         self.sleep_time = sleep_time
-
 
     def run(self):
         """Continuously check queue for new events and manage flow of executionm"""

@@ -20,8 +20,9 @@ def get_focus():
     else:
         print(f"The program {program_name} could not be found!")
 
-def pause(time):
-    time.sleep(time)
+def pause(seconds):
+    """Pauses execution for specified number of seconds. This can be a float for fractions of a second."""
+    time.sleep(seconds)
 
 
 def send(key_value):

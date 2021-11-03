@@ -27,4 +27,5 @@ pip3 install pyautogui
 pip3 install pydirectinput
 pip3 install requests
 pip3 install pywin32
+pip install keyboard
 
