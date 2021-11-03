@@ -20,6 +20,9 @@ def get_focus():
     else:
         print(f"The program {program_name} could not be found!")
 
+def pause(time):
+    time.sleep(time)
+
 
 def send(key_value):
     keys = key_value.split('+')

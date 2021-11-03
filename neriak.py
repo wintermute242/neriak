@@ -87,7 +87,7 @@ class Event:
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
     def __init__(self, func):
-        print(f"Action: Passed in as func: {func}")
+        #print(f"Action: Passed in as func: {func}")
         self.sequence = []
         self.add_sequence_item(func)
 
@@ -99,7 +99,7 @@ class Action:
     def execute(self, data):
         """Pass in the data from the event to each function in the sequence"""
         print("Execute() called in action")
-        print(self.sequence)
+        #print(self.sequence)
         for item in self.sequence:
             print("Executing action")
             item(data)
