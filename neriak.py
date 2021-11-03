@@ -20,6 +20,11 @@ class Persona:
 
         self.keys = self.load_keys()
 
+    def add_action(self, action):
+        self.actions.append(action)
+
+    def add_trigger(self, trigger):
+        self.triggers.append(trigger)
 
     def load_keys(self) -> dict:
         """
@@ -134,7 +139,7 @@ class Agent:
 
     def run(self):
         """Continuously check queue for new events and manage flow of executionm"""
-        print("The agent has started.")
+        print("Agent is running...")
         
         # Looking for the main event loop handling triggered events? This is it.
         # The agent will continuosly check for triggered events and send them
@@ -153,13 +158,13 @@ class Agent:
         # execution back to the persona to do whatever it needs to do.
         while True:
             try:
-                event = self.queue.get()
-                print(f"Got event from queue: {event.label}")
+                event = self.queue.get(block=False)
+                #print(f"Got event from queue: {event.name}")
                 # Call on the persona to handle the event found
                 self.persona.process_event(event)
 
             except queue.Empty:
-                print("Nothing seen in queue")
+                #print("Nothing seen in queue")
                 time.sleep(self.sleep_time)
             
             finally:

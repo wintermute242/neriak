@@ -30,7 +30,8 @@ class LogReader:
                 time.sleep(self.sleep)
                 continue
             
-            yield line
+            # The first 26 characters are just the timestamp
+            yield line[25:]
     
     def run(self):
         """Main execution of the thread begins here."""
@@ -40,7 +41,7 @@ class LogReader:
         self.log_file.seek(0,2) 
         
         for line in self.generate_next_line():
-            print(f"LogReader: {line}",end="")
+            #print(f"LogReader: {line}",end="")
 
             # Every task has a label and a trigger. A trigger is a compiled regex object which is compared against each line from the log file.
             # If a match is found, the label and the associated match object are bundled into an Event object and put

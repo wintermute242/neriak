@@ -15,19 +15,21 @@ class Warrior(Persona):
         self.log_path = os.path.join(self.log_dir, self.log_name)
         self.timers = {} # Name string : Timer object
 
+        super().__init__(__name__, self.log_path, self.key_file)
+
         # Add any persona specific variables here
         
         # Add setup here like triggers, actions, etc
         
         # -- 1 -- Auto Avatar
-        avatar_trigger = Trigger("avatar_proc", "^Your body screams with the power of an avatar")
-        avatar_action  = Action(func=self.avatar_proc)
-        avatar_task    = Task('avatar_proc',avatar_trigger, action=avatar_action)
-        self.add_task(avatar_task)
+        #avatar_trigger = Trigger("avatar_proc", "Your body screams with the power of an avatar")
+        #avatar_action  = Action(func=self.avatar_proc)
+        #avatar_task    = Task('avatar_proc',avatar_trigger, action=avatar_action)
+        #self.add_task(avatar_task)
 
-        
-        # This is the last thing that should get called. Don't put anything after this.
-        super().__init__(__name__, self.log_path, self.key_file)
+        # Just print all messages from log
+        self.add_trigger(Trigger('all_lines','.*'))
+        self.add_action(Action('all_lines', self.all_lines))
     
     def load():
         """Returns a new instance of the class. This should match the class name."""
@@ -44,9 +46,12 @@ class Warrior(Persona):
         # check timers to see how much time has elapsed, and take actions if necessary. 
 
         # Check if we need to swap to avatar
-        if self.timers['avatar'].alarmed():
+        #if self.timers['avatar'].alarmed():
             # Swap to avatar weapons
-            GameInput.send(self.keys['avatar'])
+            #GameInput.send(self.keys['avatar'])
+
+    def all_lines(self, data):
+        print(data[0])
 
     def avatar_proc(self, data):
         """Called whenever avatar procs"""
