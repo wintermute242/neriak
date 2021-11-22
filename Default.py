@@ -16,11 +16,9 @@ class Default(Persona):
 
     # Initialize the superclass
     def __init__(self):
+        super().__init__(__name__, self.log_path, self.key_file)
         #--> Add setup here like triggers, actions, etc
         
-        
-        # This is the last thing that should get called. Don't put anything after this.
-        super().__init__(__name__, self.log_path)
     
     def load():
         """Returns a new instance of the class. This should match the class name."""

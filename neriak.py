@@ -11,10 +11,10 @@ class Persona:
     which handles implementing the methods needed to setup basic inter-thread communication
     and event handling so that the sub-class can concern itself with the player logic.
     """
-    def __init__(self, name, log_file_path, key_file):
+    def __init__(self, name, log, keys):
         self.name = name
-        self.log_file_path = log_file_path
-        self.key_file = key_file
+        self.log_file_path = log
+        self.key_file = keys
         self.triggers = []
         self.actions = []
 
@@ -67,7 +67,7 @@ class Trigger:
     """
     def __init__(self, name, regex):
         self.name  = name
-        self.regex = re.compile(regex)
+        self.regex = re.compile(regex, re.IGNORECASE)
 
 class Event:
     """

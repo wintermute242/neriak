@@ -22,21 +22,16 @@ class Cleric(Persona):
         # Add setup here like triggers, actions, etc
         
         # -- 1 -- Auto Cleric Pants
-        pants_toggle_trigger = Trigger("pants_toggle", "] (?:Leshy|Leviathan) (?:tells you|tells the group), 'toggle cleric pants'")
-        pants_toggle_action  = Action(func=self.toggle_cleric_pants)
-        pants_toggle_task    = Task('toggle_cleric_pants', pants_toggle_trigger, action=pants_toggle_action)
-        self.add_task(pants_toggle_task)
+        self.add_trigger(Trigger('pants_toggle', '] (?:Leshy|Leviathan) (?:tells you|tells the group), "toggle cleric pants"'))
+        self.add_action(Action('pants_toggle', func=self.toggle_cleric_pants))
 
-        pants_interrupted_trigger = Trigger("pants_interrupted", "Your Word of Health spell is interrupted.")
-        print(self.cast_cleric_pants)
-        pants_interrupted_action = Action(self.cast_cleric_pants)
-        pants_interrupted_task = Task('pants_interrupted_task', pants_interrupted_trigger, action=pants_interrupted_action)
-        self.add_task(pants_interrupted_task)
+        self.add_trigger(Trigger('pants_interrupted', "Your Word of Health spell is interrupted."))
+        self.add_action(Action('pants_toggle', self.cast_cleric_pants))
 
         # -- 2 -- Auto-accept group invitations
-        invite_trigger = Trigger("accept_invites","invites you to join a group.")
-        invite_action = Action(func=self.accept_invite)
-        invite_task = Task('auto_accept_invites', invite_trigger, invite_action)
+        self.add_trigger(Trigger('accept_invites','invites you to join a group.'))
+        self.add_action(Action('accept_invites',func=self.accept_invite))
+        
         
     
     def load():

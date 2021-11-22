@@ -31,7 +31,7 @@ class LogReader:
                 continue
             
             # The first 26 characters are just the timestamp
-            yield line[25:]
+            yield line[27:]
     
     def run(self):
         """Main execution of the thread begins here."""
@@ -48,10 +48,13 @@ class LogReader:
             # into the thread-safe queue. The event will be retrieved and the label evaluated to a matching Task object.
             # This task is then handed the match object (which may contain data it needs) and executed.
             for trigger in self.triggers:
-                #print(f"Checking {task.trigger.regex.pattern}...")
-                match = trigger.regex.search(line,re.IGNORECASE)
+                #print(f"Checking: [{trigger.regex.pattern}]")
+                match = trigger.regex.search(line)
+                #print(f"LogReader: {line}",end="")
                 if (match):
-                    #print(f"Matched: {trigger.name}")
+                    #print(f"LogReader: {line}",end="")
+                    print(f"Matched: {trigger.name}")
+                    #print(f"Matched line: [{match.group(0)}]")
                     self.queue.put(Neriak.Event(trigger.name, match))
 
         

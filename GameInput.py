@@ -14,8 +14,12 @@ def get_focus():
             win32gui.ShowWindow(handle, 1)
 
         print(f"Activating window '{program_name}'...")
-        win32gui.SetForegroundWindow(handle)
-        time.sleep(0.05) # Give the window enough time to get focus or the keystroke will go who knows where
+        try:
+            win32gui.SetForegroundWindow(handle)
+        except:
+            pass
+        
+        time.sleep(0.25) # Give the window enough time to get focus or the keystroke will go who knows where
 
     else:
         print(f"The program {program_name} could not be found!")
@@ -34,13 +38,17 @@ def send(key_value):
     else:
         send_key(keys[0])
 
-
 def send_key(key_name):
     print("send_key")
     # DirectInput Key Codes 
     # at https://github.com/learncodebygaming/pydirectinput/blob/master/pydirectinput/__init__.py
     get_focus()
     pydirectinput.press(key_name)
+
+def send_keys(keys):
+    get_focus()
+    for key in keys:
+        pydirectinput.press(key)
 
 
 def send_key_combination(*keys):
