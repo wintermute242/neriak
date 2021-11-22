@@ -89,7 +89,11 @@ class Rogue(Persona):
                 self.assist_timer.start()
 
         if self.avatar_timer.time_elapsed():
-            self.keys['swap_to_avatar_weapons']
+            action_key = self.keys['swap_to_avatar_weapons']
+            GameInput.send(action_key)
+            print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
+            self.avatar_timer.reset()
+
 
     def action_follow(self, data):
         print(f"Data: [{data.group(0)}]")
@@ -111,9 +115,9 @@ class Rogue(Persona):
 
     def action_avatar(self, data):
         print(f"Avatar procced")
-        action_key = self.keys[avatar_proc]
+        action_key = self.keys['swap_to_main']
         GameInput.send(action_key)
-        print(f"Performed action 'avatar swap', sent key {action_key}")
+        print(f"Performed action 'swap_to_main', sent key {action_key}")
         self.avatar_timer.set_alarm(230)
         self.avatar_timer.start()
 
