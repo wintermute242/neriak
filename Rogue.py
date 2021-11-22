@@ -91,7 +91,7 @@ class Rogue(Persona):
                 self.assist_timer.set_alarm(random.randint(1,3))
                 self.assist_timer.start()
 
-        if self.avatar_timer.time_elapsed():
+        if self.avatar_timer.alarmed():
             action_key = self.keys['swap_to_avatar_weapons']
             GameInput.send(action_key)
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
