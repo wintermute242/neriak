@@ -81,9 +81,12 @@ class Rogue(Persona):
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
             action_key = self.keys['assist']
+            evade_key = self.keys['evade']
             if (self.assist_timer.alarmed()):
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
+                GameInput.pause(0.1)
+                GameInput.send(evade_key)
                 self.assist_timer.restart()
                 self.assist_timer.set_alarm(random.randint(1,3))
                 self.assist_timer.start()
@@ -139,5 +142,3 @@ class Rogue(Persona):
 
         else:
             self.assist_toggle = False
-
-    
