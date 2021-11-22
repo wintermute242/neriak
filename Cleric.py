@@ -12,7 +12,6 @@ class Cleric(Persona):
     
         self.log_name = f'eqlog_{self.character_name.lower().capitalize()}_{self.server_name.lower()}.txt'
         self.log_path = os.path.join(self.log_dir, self.log_name)
-        self.timers = {} # Name string : Timer object
 
         super().__init__(__name__, self.log_path, self.key_file)
 
