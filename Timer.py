@@ -25,13 +25,17 @@ class Timer:
     def alarmed(self) -> bool:
         """Check whether the timer has alarmed."""
         now = time.time()
-        elapsed = now - self.start_time
+
+        try:
+            elapsed = now - self.start_time
         
-        if elapsed > self.max_time_elapsed:
-            return True
+            if elapsed > self.max_time_elapsed:
+                return True
         
-        else:
-            False
+        except TypeError:
+            pass
+        
+        return False
 
     def is_started(self):
         return self.timer_started
@@ -39,6 +43,7 @@ class Timer:
     def reset(self):
         """Resets the cumulative time"""
         self.time_elapsed = 0
+        self.start_time = None
 
     def restart(self):
         """Restart the timer."""

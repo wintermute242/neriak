@@ -5,7 +5,7 @@ class Rogue(Persona):
     #--> CHANGE THESE VALUES
     character_name = "Deathly" # Capitalized, set to your character name
     server_name = "mischief" # Lowercase, set to your server name
-    eq_path = os.path.join('C:', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+    eq_path = os.path.join('C:\\', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
     log_dir = os.path.join(eq_path, 'Logs')
     key_file = "rogue_keys.ini"
     
@@ -20,7 +20,9 @@ class Rogue(Persona):
         super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
         self.assist_toggle = False
         self.assist_timer = Timer.Timer()
+        self.assist_timer.set_alarm(2)
         self.avatar_timer = Timer.Timer()
+        self.avatar_timer.set_alarm(230)
         self.approved_names = []
         self.keys = {}
 
@@ -45,7 +47,7 @@ class Rogue(Persona):
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Avatar proc
-        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar'"""))
+        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar"""))
         self.add_action(Action('avatar', self.action_avatar))
 
         # Assist
@@ -82,7 +84,7 @@ class Rogue(Persona):
         if self.assist_toggle:
             action_key = self.keys['assist']
             evade_key = self.keys['evade']
-            if (self.assist_timer.alarmed()):
+            if self.assist_timer.alarmed():
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
                 GameInput.pause(0.1)
@@ -92,7 +94,7 @@ class Rogue(Persona):
                 self.assist_timer.start()
 
         if self.avatar_timer.alarmed():
-            action_key = self.keys['swap_to_avatar_weapons']
+            action_key = self.keys['swap_to_avatar']
             GameInput.send(action_key)
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
             self.avatar_timer.reset()
