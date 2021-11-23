@@ -1,13 +1,13 @@
 from Neriak import *
 import os, GameInput, Timer, random
 
-class Rogue(Persona):
+class Monk(Persona):
     #--> CHANGE THESE VALUES
-    character_name = "Deathly" # Capitalized, set to your character name
+    character_name = "Nakai" # Capitalized, set to your character name
     server_name = "mischief" # Lowercase, set to your server name
     eq_path = os.path.join('C:\\', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
     log_dir = os.path.join(eq_path, 'Logs')
-    key_file = "rogue_keys.ini"
+    key_file = "monk_keys.ini"
     
     
     log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
@@ -60,7 +60,7 @@ class Rogue(Persona):
     
     def load():
         """Returns a new instance of the class. This should match the class name."""
-        return Rogue()
+        return Monk()
 
     def add_approved_name(self, name):
         self.approved_names.append(name.strip().lower())

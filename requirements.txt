@@ -1,0 +1,5 @@
+pyautogui
+pydirectinput
+requests
+pywin32
+keyboard
