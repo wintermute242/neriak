@@ -46,7 +46,7 @@ class Cleric(Persona):
 
         # Starting/stopping melody
         self.add_trigger(Trigger('toggle_pants', """(\w+) tells the group, 'cast those pants'"""))
-        self.add_action(Action('toggle_pants', self.action_toggle_songs))
+        self.add_action(Action('toggle_pants', self.action_toggle_pants))
     
     def load():
         """Returns a new instance of the class. This should match the class name."""
@@ -103,7 +103,7 @@ class Cleric(Persona):
         print(f"Data: [{data.group(0)}]")
         player_name = data.group(1)
         print(f"Received request to toggle pants from {player_name}")
-        action_key = self.keys['pants']
+        action_key = self.keys['cast_pants']
         if self.is_name_approved(player_name):
             GameInput.send(action_key)
             print(f"Performed action 'toggle_pants', sent key {action_key}")
