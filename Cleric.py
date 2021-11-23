@@ -74,7 +74,7 @@ class Cleric(Persona):
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.pants_toggle:
-            action_key = self.keys['pants']
+            action_key = self.keys['cast_pants']
             if (self.assist_timer.alarmed()):
                 GameInput.send(action_key)
                 print(f"Performed action 'cast pants', sent key {action_key}")

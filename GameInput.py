@@ -1,5 +1,4 @@
 import win32gui
-import pyautogui
 import pydirectinput
 import time
 
