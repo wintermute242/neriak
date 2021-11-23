@@ -1,41 +1,68 @@
 from Neriak import *
-from Timer import Timer
-import os, GameInput
+import os, GameInput, Timer, random
 
 class Cleric(Persona):
-    def __init__(self):
-        self.character_name = "Revelation" # Capitalized, set to your character name
-        self.server_name = "mischief" # Lowercase, set to your server name
-        self.eq_path = os.path.join('F:', 'Games', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
-        self.log_dir = os.path.join(self.eq_path, 'Logs')
-        self.key_file = "cleric_keys.ini"
+    #--> CHANGE THESE VALUES
+    character_name = "Revelation" # Capitalized, set to your character name
+    server_name = "mischief" # Lowercase, set to your server name
+    eq_path = os.path.join('C:\\', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+    log_dir = os.path.join(eq_path, 'Logs')
+    key_file = "cleric_keys.ini"
     
-        self.log_name = f'eqlog_{self.character_name.lower().capitalize()}_{self.server_name.lower()}.txt'
-        self.log_path = os.path.join(self.log_dir, self.log_name)
+    
+    log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
+    log_path = os.path.join(log_dir, log_name)
+    
+    #--> Initialize any persona specific variables here
 
-        super().__init__(__name__, self.log_path, self.key_file)
+    # Initialize the superclass
+    def __init__(self):
+        super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
+        self.pants_toggle = False
+        self.pants_timer = Timer.Timer()
+        self.pants_timer.max_time_elapsed = 12
+        self.approved_names = []
+        self.keys = {}
 
-        # Add any persona specific variables here
-        self.casting_cleric_pant = False
-
-        # Add setup here like triggers, actions, etc
+        # Load the keys from the ini file.
+        # The key is a name matched in this program for
+        # the intended action and the value is the corresponding 
+        # key stroke(s) sent to the game to accomplish this.
+        with open(self.key_file, 'r') as file:
+            for line in file:
+                key, value = line.strip().lower().split('=')
+                self.keys[key] = value.strip('\n')
         
-        # -- 1 -- Auto Cleric Pants
-        self.add_trigger(Trigger('pants_toggle', '] (?:Leshy|Leviathan) (?:tells you|tells the group), "toggle cleric pants"'))
-        self.add_action(Action('pants_toggle', func=self.toggle_cleric_pants))
+        #--> Add setup here like triggers, actions, etc
 
-        self.add_trigger(Trigger('pants_interrupted', "Your Word of Health spell is interrupted."))
-        self.add_action(Action('pants_toggle', self.cast_cleric_pants))
+        for name in ['Leviathan','Leshy','Orkamungus','Blighted']:
+            self.add_approved_name(name)
 
-        # -- 2 -- Auto-accept group invitations
-        self.add_trigger(Trigger('accept_invites','invites you to join a group.'))
-        self.add_action(Action('accept_invites',func=self.accept_invite))
-        
-        
+        # Following
+        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me'"""))
+        self.add_action(Action('follow', self.action_follow))
+        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following'"""))
+        self.add_action(Action('stop_follow', self.action_stop_follow))
+
+        # Starting/stopping melody
+        self.add_trigger(Trigger('toggle_pants', """(\w+) tells the group, 'cast those pants'"""))
+        self.add_action(Action('toggle_pants', self.action_toggle_songs))
     
     def load():
-        """Returns a new instance of the class"""
+        """Returns a new instance of the class. This should match the class name."""
         return Cleric()
+
+    def add_approved_name(self, name):
+        self.approved_names.append(name.strip().lower())
+
+    def is_name_approved(self, name) -> bool:
+        # Returns true or false depending on whether the person stating the name
+        # is allowed to send requests.
+        name = name.strip().lower()
+        result = False
+        if name in self.approved_names:
+            result = True
+        return result
 
     def update(self):
         """
@@ -44,42 +71,41 @@ class Cleric(Persona):
         calls is a either the time needed to process a particular event or the sleep_time
         parameter passed to Agent.
         """
-        try:
-            if self.timers['cleric_pants'].alarmed():
-                self.cast_cleric_pants()
-            
-        except KeyError:
-            pass
+        # This gets called roughly every tenth of a second by default. You can do this like
+        # check timers to see how much time has elapsed, and take actions if necessary.
+        if self.pants_toggle:
+            action_key = self.keys['pants']
+            if (self.assist_timer.alarmed()):
+                GameInput.send(action_key)
+                print(f"Performed action 'cast pants', sent key {action_key}")
+                self.assist_timer.restart()
+                self.assist_timer.start()
 
-        
-    def toggle_cleric_pants(self):
-        # If we are already set to auto cast, then toggle off
-        if self.cast_cleric_pants:
-            self.casting_cleric_pants = False
-            GameInput.send('duck')
-            try:
-                del self.timers['cleric_pants']
-            
-            except KeyError:
-                pass
+    def action_follow(self, data):
+        print(f"Data: [{data.group(0)}]")
+        player_name = data.group(1)
+        print(f"Received request to follow from {player_name}")
+        action_key = self.keys['follow']
+        if self.is_name_approved(player_name):
+            GameInput.send(action_key)
+            print(f"Performed action 'follow', sent key {action_key}")
+
+    def action_stop_follow(self, data):
+        print(f"Data: [{data.group(0)}]")
+        player_name = data.group(1)
+        print(f"Received request to stop follow from {player_name}")
+        action_key = self.keys['stop_follow']
+        if self.is_name_approved(player_name):
+            GameInput.send(action_key)
+            print(f"Performed action 'stop_follow', sent key {action_key}")
     
-        # Otherwise toggle on
-        else:
-            self.casting_cleric_pants = True
-            self.cast_cleric_pants()
-            
-
-    def cast_cleric_pants(self):
-        self.timers['cleric_pants'] = Timer()
-        self.timers['cleric_pants'].set_alarm(14)
-        print("Casting cleric pants!")
-        GameInput.send('cleric_pants')
-        self.timers['cleric_pants'].start()
-
-    def accept_invites(self):
-        
-
-
-    
-        
-    
+    def action_toggle_pants(self, data):
+        print(f"Data: [{data.group(0)}]")
+        player_name = data.group(1)
+        print(f"Received request to toggle pants from {player_name}")
+        action_key = self.keys['pants']
+        if self.is_name_approved(player_name):
+            GameInput.send(action_key)
+            print(f"Performed action 'toggle_pants', sent key {action_key}")
+            self.pants_toggle = True
+            self.pants_timer.start()

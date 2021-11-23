@@ -5,7 +5,7 @@ class Rogue(Persona):
     #--> CHANGE THESE VALUES
     character_name = "Deathly" # Capitalized, set to your character name
     server_name = "mischief" # Lowercase, set to your server name
-    eq_path = os.path.join('C:', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
+    eq_path = os.path.join('C:\\', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
     log_dir = os.path.join(eq_path, 'Logs')
     key_file = "rogue_keys.ini"
     
@@ -45,7 +45,7 @@ class Rogue(Persona):
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Avatar proc
-        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar'"""))
+        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar"""))
         self.add_action(Action('avatar', self.action_avatar))
 
         # Assist
