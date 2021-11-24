@@ -41,9 +41,9 @@ class Rogue(Persona):
             self.add_approved_name(name)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me'"""))
+        self.add_trigger(Trigger('follow', """(\w+) (?:you|the group), 'follow me'"""))
         self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following'"""))
+        self.add_trigger(Trigger('stop_follow', """(\w+) (?:you|the group), 'stop following'"""))
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Avatar proc
@@ -51,9 +51,9 @@ class Rogue(Persona):
         self.add_action(Action('avatar', self.action_avatar))
 
         # Assist
-        self.add_trigger(Trigger('assist_on', """(\w+) tells the group, '(assist me)'"""))
+        self.add_trigger(Trigger('assist_on', """(\w+) (?:you|the group), '(assist me)'"""))
         self.add_action(Action('assist_on', self.action_toggle_assist))
-        self.add_trigger(Trigger('assist_off', """(\w+) tells the group, '(stop assisting)'"""))
+        self.add_trigger(Trigger('assist_off', """(\w+) (?:you|the group), '(stop assisting)'"""))
         self.add_action(Action('assist_off', self.action_toggle_assist))
         
         

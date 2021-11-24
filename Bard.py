@@ -38,23 +38,23 @@ class Bard(Persona):
             self.add_approved_name(name)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me'"""))
+        self.add_trigger(Trigger('follow', """(\w+) (?:you|the group), 'follow me'"""))
         self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following'"""))
+        self.add_trigger(Trigger('stop_follow', """(\w+) (?:you|the group), 'stop following'"""))
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Starting/stopping melody
-        self.add_trigger(Trigger('toggle_songs', """(\w+) tells the group, 'songs'"""))
+        self.add_trigger(Trigger('toggle_songs', """(\w+) (?:you|the group), 'songs'"""))
         self.add_action(Action('toggle_songs', self.action_toggle_songs))
 
         # Swapping bandolier
-        self.add_trigger(Trigger('bandolier', """(\w+) tells the group, 'gillea swap to (\w+)'"""))
+        self.add_trigger(Trigger('bandolier', """(\w+) (?:you|the group), 'gillea swap to (\w+)'"""))
         self.add_action(Action('bandolier', self.action_bandolier))
 
         # Assist
-        self.add_trigger(Trigger('assist_on', """(\w+) tells the group, '(assist me)'"""))
+        self.add_trigger(Trigger('assist_on', """(\w+) (?:you|the group), '(assist me)'"""))
         self.add_action(Action('assist_on', self.action_toggle_assist))
-        self.add_trigger(Trigger('assist_off', """(\w+) tells the group, '(stop assisting)'"""))
+        self.add_trigger(Trigger('assist_off', """(\w+) (?:you|the group), '(stop assisting)'"""))
         self.add_action(Action('assist_off', self.action_toggle_assist))
         
         
