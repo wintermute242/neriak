@@ -75,7 +75,7 @@ class Cleric(Persona):
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.pants_toggle:
             action_key = self.keys['cast_pants']
-            if (self.pantst_timer.alarmed()):
+            if (self.pants_timer.alarmed()):
                 GameInput.send(action_key)
                 print(f"Performed action 'cast pants', sent key {action_key}")
                 self.pants_timer.restart()
