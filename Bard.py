@@ -20,6 +20,8 @@ class Bard(Persona):
         super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
         self.assist_toggle = False
         self.assist_timer = Timer.Timer()
+        self.avatar_timer = Timer.Timer()
+        self.avatar_timer.set_alarm(230)
         self.approved_names = []
         self.keys = {}
 
