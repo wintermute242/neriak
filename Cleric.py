@@ -1,3 +1,4 @@
+from pydirectinput import FailSafeException
 from Neriak import *
 import os, GameInput, Timer, random
 
@@ -39,13 +40,13 @@ class Cleric(Persona):
             self.add_approved_name(name)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me'"""))
+        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me"""))
         self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following'"""))
+        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following"""))
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Starting/stopping melody
-        self.add_trigger(Trigger('toggle_pants', """(\w+) tells the group, 'cast those pants'"""))
+        self.add_trigger(Trigger('toggle_pants', """(\w+) tells the group, 'cast those pants"""))
         self.add_action(Action('toggle_pants', self.action_toggle_pants))
     
     def load():
@@ -103,9 +104,12 @@ class Cleric(Persona):
         print(f"Data: [{data.group(0)}]")
         player_name = data.group(1)
         print(f"Received request to toggle pants from {player_name}")
-        action_key = self.keys['cast_pants']
         if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'toggle_pants', sent key {action_key}")
-            self.pants_toggle = True
-            self.pants_timer.start()
+            if self.action_toggle_pants:
+                self.action_toggle_pants = False
+            else:
+                action_key = self.keys['cast_pants']
+                GameInput.send(action_key)
+                print(f"Performed action 'toggle_pants', sent key {action_key}")
+                self.pants_toggle = True
+                self.pants_timer.start()
