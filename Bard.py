@@ -168,6 +168,14 @@ class Bard(Persona):
         else:
             self.assist_toggle = False
 
+    def action_avatar(self, data):
+        print(f"Avatar procced")
+        action_key = self.keys['swap_to_main']
+        GameInput.send(action_key)
+        print(f"Performed action 'swap_to_main', sent key {action_key}")
+        self.avatar_timer.set_alarm(230)
+        self.avatar_timer.start()
+
     def action_burn(self, data):
         action_key = self.keys['burn']
         GameInput.send(action_key)
