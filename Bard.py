@@ -64,8 +64,8 @@ class Bard(Persona):
         self.add_action(Action('assist_off', self.action_toggle_assist))
 
         # Speed
-        self.add_trigger(Trigger('assist_on', """(\w+) tells (?:you|the group), '(bard speed)"""))
-        self.add_action(Action('assist_on', self.action_speed))
+        self.add_trigger(Trigger('bard_speed', """(\w+) tells (?:you|the group), '(bard speed)"""))
+        self.add_action(Action('bard_speed', self.action_speed))
 
         # DPS burn
         self.add_trigger(Trigger('burn', """(\w+) tells (?:you|the group), '(burn)"""))
