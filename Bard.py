@@ -40,13 +40,13 @@ class Bard(Persona):
             self.add_approved_name(name)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) (?:you|the group), 'follow me"""))
+        self.add_trigger(Trigger('follow', """(\w+) tells (?:you|the group), 'follow me"""))
         self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) (?:you|the group), 'stop following"""))
+        self.add_trigger(Trigger('stop_follow', """(\w+) tells (?:you|the group), 'stop following"""))
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Starting/stopping melody
-        self.add_trigger(Trigger('toggle_songs', """(\w+) (?:you|the group), 'songs"""))
+        self.add_trigger(Trigger('toggle_songs', """(\w+) tells (?:you|the group), 'songs"""))
         self.add_action(Action('toggle_songs', self.action_toggle_songs))
 
         # Avatar proc
@@ -54,21 +54,21 @@ class Bard(Persona):
         self.add_action(Action('avatar', self.action_avatar))
 
         # Swapping bandolier
-        self.add_trigger(Trigger('bandolier', """(\w+) (?:you|the group), 'gillea swap to (\w+)"""))
+        self.add_trigger(Trigger('bandolier', """(\w+) tells (?:you|the group), 'gillea swap to (\w+)"""))
         self.add_action(Action('bandolier', self.action_bandolier))
 
         # Assist
-        self.add_trigger(Trigger('assist_on', """(\w+) (?:you|the group), '(assist me)"""))
+        self.add_trigger(Trigger('assist_on', """(\w+) tells (?:you|the group), '(assist me)"""))
         self.add_action(Action('assist_on', self.action_toggle_assist))
-        self.add_trigger(Trigger('assist_off', """(\w+) (?:you|the group), '(stop assisting)"""))
+        self.add_trigger(Trigger('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)"""))
         self.add_action(Action('assist_off', self.action_toggle_assist))
 
         # Speed
-        self.add_trigger(Trigger('assist_on', """(\w+) (?:you|the group), '(bard speed)"""))
+        self.add_trigger(Trigger('assist_on', """(\w+) tells (?:you|the group), '(bard speed)"""))
         self.add_action(Action('assist_on', self.action_speed))
 
         # DPS burn
-        self.add_trigger(Trigger('burn', """(\w+) (?:you|the group), '(burn)"""))
+        self.add_trigger(Trigger('burn', """(\w+) tells (?:you|the group), '(burn)"""))
         self.add_action(Action('burn', self.action_burn))
         
     def load():
