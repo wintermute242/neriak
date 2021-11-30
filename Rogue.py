@@ -43,7 +43,7 @@ class Rogue(Persona):
         # Following
         self.add_trigger(Trigger('follow', """(\w+) tells (?:you|the group), 'follow me"""))
         self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) (?:you|the group), 'stop following"""))
+        self.add_trigger(Trigger('stop_follow', """(\w+) tells (?:you|the group), 'stop following"""))
         self.add_action(Action('stop_follow', self.action_stop_follow))
 
         # Avatar proc

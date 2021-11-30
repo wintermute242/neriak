@@ -148,7 +148,7 @@ class Monk(Persona):
         else:
             self.assist_toggle = False
 
-        def action_burn(self, data):
-            action_key = self.keys['burn']
-            GameInput.send(action_key)
-            print(f"Performed action 'burn', sent key {action_key}")
+    def action_burn(self, data):
+        action_key = self.keys['burn']
+        GameInput.send(action_key)
+        print(f"Performed action 'burn', sent key {action_key}")
