@@ -1,5 +1,5 @@
 from LogReader import LogReader
-import queue, threading, time, re, keyboard, configparser, sys
+import queue, threading, time, re, keyboard, configparser, GameInput
 
 class Persona:
     """
@@ -12,50 +12,56 @@ class Persona:
     and event handling so that the sub-class can concern itself with the player logic.
     """
     def __init__(self, name):
-        self.name = name
+        self.persona_name = name
+        # Read in the configuration file
         self.config = configparser.ConfigParser()
-        try:
-            self.config.read_file('neriak.ini')
-        except FileNotFoundError as e:
-            print('Could not find file \'neriak.ini\'. Check that it is present in the application directory.',file=sys.stderr)
-            raise FileNotFoundError
-        except Exception:
-            print('An error occurred while trying to read the file \'neriak.ini\'', file=sys.stderr)
-            raise Exception
+        self.config.read('neriak.ini')
         
-
-        self.key_file = keys
+        # All of the triggers registered for the Persona.
+        # Each trigger has a regex that is evaluated against new entries in the log file
+        # and if a match is found the associated action is executed. The triggers and actions
+        # are mapped by a common name value.
         self.triggers = []
         self.actions = []
-
-        self.keys = self.load_keys()
+        self.approved_names = self.config[name]['accept_commands_from'].split(',')
 
     def add_action(self, action):
+        """Registers a new action for the persona"""
         self.actions.append(action)
 
     def add_trigger(self, trigger):
+        """Registers a new trigger for the persona"""
         self.triggers.append(trigger)
 
-    def load_keys(self) -> dict:
+    def new_custom_action(self, action_name, trigger_string, func, command=False):
         """
-        Loads key/value pairs from a simple ini file. The key is an arbitrary name to give to
-        a particular keypress so as to better document what is being accomplished by an action.
+        Custom actions that require special logic may pass in a function to be called
+        when the event has triggered. If the action is intended to only be triggered by 
+        a command from a specific list of people then command should be set to True.
         """
-        keys = {}
-        try:
-            with open(self.key_file) as key_file:
-                for line in key_file:
-                    if '=' in line:
-                        key, value = line.split('=')
-                        key = key.strip().lower()
-                        value = value.strip().lower()
-                        keys[key] = value
+        self.add_trigger(Trigger(action_name, trigger_string))
+        self.add_action(Action(action_name, func, command))
 
-        except Exception as e:
-            print(e)
+    def new_simple_action(self, action_name, trigger_string, command=False):
+        """
+        Most persona actions are a simple keypress in response to a trigger phrase.
+        If the action is intended to only be triggered by a command from a specific 
+        list of people then command should be set to True.
+        """
+        self.add_trigger(Trigger(action_name, trigger_string))
+        self.add_action(Action(action_name, self.run_simple_action, command))
+
+    def run_simple_action(self, action_name):
+        """
+        Executes a simple action.
+        """
+        print(f"Simple action {action_name} triggered")
+        action_key = self.config[self.persona_name][action_name]
+        GameInput.send(action_key)
+        print(f"Completed simple action {action_name}")
 
     def get_action_by_name(self, name):
-        """Matches a triggered event to an action"""
+        """Matches a triggered event to a registered action by name."""
         action = None
         for a in self.actions:
             if name == a.name:
@@ -64,10 +70,27 @@ class Persona:
         
         return action
 
+    def get_config_value(self, key):
+        """
+        Returns the value for the requested key from the configuration file.
+        """
+        return self.config[self.persona_name][key]
+
     def process_event(self, event):
         """Event handler"""
         data = event.match
         action = self.get_action_by_name(event.name)
+        
+        # Check if this is a command trigger and if so whether
+        # it is approved.
+        if action.command:
+            commander_name = data.group(1)
+            print(f"Command issued by {commander_name}... ",end='')
+            if not commander_name in self.approved_names:
+                print("Denied")
+                return
+    
+            print("Approved")
         action.execute(data)
 
 class Trigger:
@@ -95,14 +118,15 @@ class Event:
 
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
-    def __init__(self, name, func):
+    def __init__(self, name, func, command=False):
         self.name = name
         self.func = func
+        self.command = command
 
     def execute(self, data):
         """Pass in the data from the event to each function in the sequence"""
         print("Executing action")
-        self.func(data)
+        self.func(self.name, data)
 
 class Controller():
     """

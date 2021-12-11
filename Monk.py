@@ -2,19 +2,6 @@ from Neriak import *
 import os, GameInput, Timer, random
 
 class Monk(Persona):
-    #--> CHANGE THESE VALUES
-    character_name = "Nakai" # Capitalized, set to your character name
-    server_name = "mischief" # Lowercase, set to your server name
-    eq_path = os.path.join('C:\\', 'Users', 'Public', 'Daybreak Game Company', 'Installed Games', 'EverQuest') # Change this to point to your EQ directory
-    log_dir = os.path.join(eq_path, 'Logs')
-    key_file = "monk_keys.ini"
-    
-    
-    log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
-    log_path = os.path.join(log_dir, log_name)
-    
-    #--> Initialize any persona specific variables here
-
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__, log=self.log_path, keys=self.key_file)

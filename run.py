@@ -1,5 +1,6 @@
 from Neriak import *
-import argparse, sys
+import argparse, shutil
+import os.path
 
 parser = argparse.ArgumentParser(description=
     'Implements a player agent for EverQuest by loading "Personas" defined as Python modules which define agent behavior to specified event triggers.'
@@ -10,6 +11,16 @@ persona_name = "Default"
 
 if args.persona:
     persona_name = args.persona
+
+if not os.path.exists('neriak.ini'):
+    if os.path.exists('example_neriak.ini'):
+        print("No configuration file found. Creating copy from 'example_neriak.ini'")
+        shutil.copyfile('example_neriak.ini','neriak.ini')
+    else:
+        print("No configuration file 'neriak.ini' or example file 'example_neriak.ini' was found.")
+        print("Please create these files or download a new copy from the repo.")
+        os.exit(1)
+
 
 # Dynamically load the module specified on the command line. Assumes Module and Class name are the same.
 module = __import__(persona_name)
