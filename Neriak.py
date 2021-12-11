@@ -1,5 +1,5 @@
 from LogReader import LogReader
-import queue, threading, time, re, keyboard
+import queue, threading, time, re, keyboard, configparser, sys
 
 class Persona:
     """
@@ -11,9 +11,19 @@ class Persona:
     which handles implementing the methods needed to setup basic inter-thread communication
     and event handling so that the sub-class can concern itself with the player logic.
     """
-    def __init__(self, name, log, keys):
+    def __init__(self, name):
         self.name = name
-        self.log_file_path = log
+        self.config = configparser.ConfigParser()
+        try:
+            self.config.read_file('neriak.ini')
+        except FileNotFoundError as e:
+            print('Could not find file \'neriak.ini\'. Check that it is present in the application directory.',file=sys.stderr)
+            raise FileNotFoundError
+        except Exception:
+            print('An error occurred while trying to read the file \'neriak.ini\'', file=sys.stderr)
+            raise Exception
+        
+
         self.key_file = keys
         self.triggers = []
         self.actions = []
