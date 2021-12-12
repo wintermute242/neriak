@@ -1,11 +1,12 @@
-from pydirectinput import FailSafeException
 from Neriak import *
-import os, GameInput, Timer, random
+import GameInput, Timer
 
 class Cleric(Persona):
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__)
+        self.pants_timer = Timer.Timer()
+        self.pants_timer.set_alarm(11)
 
         # Accept group invite
         self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
@@ -37,7 +38,7 @@ class Cleric(Persona):
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.pants_toggle:
-            action_key = self.keys['cast_pants']
+            action_key = self.get_config_value('cast_pants')
             if (self.pants_timer.alarmed()):
                 GameInput.send(action_key)
                 print(f"Performed action 'cast pants', sent key {action_key}")
@@ -60,14 +61,10 @@ class Cleric(Persona):
         print(f"Started at: {self.zoning_follow_timer.start_time}")
     
     def action_toggle_pants(self, action_name, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to toggle pants from {player_name}")
-        if self.is_name_approved(player_name):
             if self.action_toggle_pants:
                 self.action_toggle_pants = False
             else:
-                action_key = self.keys['cast_pants']
+                action_key = self.get_config_value('cast_pants')
                 GameInput.send(action_key)
                 print(f"Performed action 'toggle_pants', sent key {action_key}")
                 self.pants_toggle = True
