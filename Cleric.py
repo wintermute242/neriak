@@ -2,57 +2,30 @@ from pydirectinput import FailSafeException
 from Neriak import *
 import os, GameInput, Timer, random
 
-class Cleric(Persona): 
-    #--> Initialize any persona specific variables here
-
+class Cleric(Persona):
     # Initialize the superclass
     def __init__(self):
-        super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
-        self.pants_toggle = False
-        self.pants_timer = Timer.Timer()
-        self.pants_timer.max_time_elapsed = 12
-        self.approved_names = []
-        self.keys = {}
+        super().__init__(name=__name__)
 
-        # Load the keys from the ini file.
-        # The key is a name matched in this program for
-        # the intended action and the value is the corresponding 
-        # key stroke(s) sent to the game to accomplish this.
-        with open(self.key_file, 'r') as file:
-            for line in file:
-                key, value = line.strip().lower().split('=')
-                self.keys[key] = value.strip('\n')
-        
-        #--> Add setup here like triggers, actions, etc
-
-        for name in ['Leviathan','Leshy','Orkamungus','Blighted']:
-            self.add_approved_name(name)
+        # Accept group invite
+        self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells the group, 'follow me"""))
-        self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells the group, 'stop following"""))
-        self.add_action(Action('stop_follow', self.action_stop_follow))
-
-        # Starting/stopping melody
-        self.add_trigger(Trigger('toggle_pants', """(\w+) tells the group, 'cast those pants"""))
-        self.add_action(Action('toggle_pants', self.action_toggle_pants))
+        self.new_simple_action('follow_on', """(\w+) tells (?:you|the group), 'follow me""", command=True)
+        self.new_simple_action('follow_off', """(\w+) tells (?:you|the group), 'stop following""", command=True)
     
+        # Potions/Pots
+        self.new_simple_action('potion_instant_heal', """(\w+) tells (?:you|the group), '(instant heal potion)""", command=True)
+        self.new_simple_action('potion_duration_heal', """(\w+) tells (?:you|the group), '(heal over time potion)""", command=True)
+
+        # Auto follow after zone
+        self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
+        self.zoning_follow_timer = Timer.Timer()
+        self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
+
     def load():
         """Returns a new instance of the class. This should match the class name."""
         return Cleric()
-
-    def add_approved_name(self, name):
-        self.approved_names.append(name.strip().lower())
-
-    def is_name_approved(self, name) -> bool:
-        # Returns true or false depending on whether the person stating the name
-        # is allowed to send requests.
-        name = name.strip().lower()
-        result = False
-        if name in self.approved_names:
-            result = True
-        return result
 
     def update(self):
         """
@@ -71,23 +44,20 @@ class Cleric(Persona):
                 self.pants_timer.restart()
                 self.pants_timer.start()
 
-    def action_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to follow from {player_name}")
-        action_key = self.keys['follow']
-        if self.is_name_approved(player_name):
+        if self.zoning_follow_timer.alarmed():
+            action_key = self.get_config_value('follow_on')
             GameInput.send(action_key)
-            print(f"Performed action 'follow', sent key {action_key}")
+            print(f"Just zoned. Following.")
+            self.zoning_follow_timer.reset()
 
-    def action_stop_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to stop follow from {player_name}")
-        action_key = self.keys['stop_follow']
-        if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'stop_follow', sent key {action_key}")
+    def follow_after_zoning(self, action_name, data):
+        """
+        Starts a timer so that we can automatically start following after zoning.
+        """
+        self.zoning_follow_timer.start()
+        print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
+        print(f"Started: {self.zoning_follow_timer.timer_started}")
+        print(f"Started at: {self.zoning_follow_timer.start_time}")
     
     def action_toggle_pants(self, data):
         print(f"Data: [{data.group(0)}]")
