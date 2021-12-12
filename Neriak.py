@@ -64,7 +64,7 @@ class Persona:
         Executes a simple action.
         """
         print(f"Simple action {action_name} triggered")
-        action_key = self.config[self.persona_name][action_name]
+        action_key = self.get_config_value(action_name)
         GameInput.send(action_key)
         print(f"Completed simple action {action_name}")
 
