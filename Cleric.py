@@ -59,7 +59,7 @@ class Cleric(Persona):
         print(f"Started: {self.zoning_follow_timer.timer_started}")
         print(f"Started at: {self.zoning_follow_timer.start_time}")
     
-    def action_toggle_pants(self, data):
+    def action_toggle_pants(self, action_name, data):
         print(f"Data: [{data.group(0)}]")
         player_name = data.group(1)
         print(f"Received request to toggle pants from {player_name}")

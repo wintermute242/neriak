@@ -1,20 +1,7 @@
 from Neriak import *
-import os, GameInput, Timer, random
+import GameInput, Timer, random
 
 class Bard(Persona):
-    #--> CHANGE THESE VALUES
-    character_name = "Gillea" # Capitalized, set to your character name
-    server_name = "mischief" # Lowercase, set to your server name
-    eq_path = os.path.join('E:\\', 'Steam', 'steamapps', 'common', 'Everquest F2P') # Change this to point to your EQ directory
-    log_dir = os.path.join(eq_path, 'Logs')
-    key_file = "bard_keys.ini"
-    
-    
-    log_name = f'eqlog_{character_name.lower().capitalize()}_{server_name.lower()}.txt'
-    log_path = os.path.join(log_dir, log_name)
-    
-    #--> Initialize any persona specific variables here
-
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
@@ -22,73 +9,50 @@ class Bard(Persona):
         self.assist_timer = Timer.Timer()
         self.avatar_timer = Timer.Timer()
         self.avatar_timer.set_alarm(230)
-        self.approved_names = []
-        self.keys = {}
 
-        # Load the keys from the ini file.
-        # The key is a name matched in this program for
-        # the intended action and the value is the corresponding 
-        # key stroke(s) sent to the game to accomplish this.
-        with open(self.key_file, 'r') as file:
-            for line in file:
-                key, value = line.strip().lower().split('=')
-                self.keys[key] = value.strip('\n')
-        
-        #--> Add setup here like triggers, actions, etc
-
-        for name in ['Leviathan','Leshy','Orkamungus','Blighted']:
-            self.add_approved_name(name)
+        # Accept group invite
+        self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells (?:you|the group), 'follow me"""))
-        self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells (?:you|the group), 'stop following"""))
-        self.add_action(Action('stop_follow', self.action_stop_follow))
-
-        # Starting/stopping melody
-        self.add_trigger(Trigger('toggle_songs', """(\w+) tells (?:you|the group), 'songs"""))
-        self.add_action(Action('toggle_songs', self.action_toggle_songs))
+        self.new_simple_action('follow_on', """(\w+) tells (?:you|the group), 'follow me""", command=True)
+        self.new_simple_action('follow_off', """(\w+) tells (?:you|the group), 'stop following""", command=True)
 
         # Avatar proc
-        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar"""))
-        self.add_action(Action('avatar', self.action_avatar))
-
-        # Swapping bandolier
-        self.add_trigger(Trigger('bandolier', """(\w+) tells (?:you|the group), 'gillea swap to (\w+)"""))
-        self.add_action(Action('bandolier', self.action_bandolier))
+        self.new_custom_action('avatar', """Your body screams with the power of an Avatar""", self.action_avatar)
+        self.avatar_timer = Timer.Timer()
+        self.avatar_timer.set_alarm(self.get_config_value('avatar_swap_timer'))
 
         # Assist
-        self.add_trigger(Trigger('assist_on', """(\w+) tells (?:you|the group), '(assist me)"""))
-        self.add_action(Action('assist_on', self.action_toggle_assist))
-        self.add_trigger(Trigger('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)"""))
-        self.add_action(Action('assist_off', self.action_toggle_assist))
-
-        # Speed
-        self.add_trigger(Trigger('bard_speed', """(\w+) tells (?:you|the group), '(bard speed)"""))
-        self.add_action(Action('bard_speed', self.action_speed))
+        self.new_custom_action('assist_on', """(\w+) tells (?:you|the group), '(assist me)""", 
+            self.action_toggle_assist, command=True)
+        self.new_custom_action('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)""", 
+            self.action_toggle_assist, command=True)
+        self.assist_toggle = False
+        self.assist_timer = Timer.Timer()
+        self.assist_timer.set_alarm(2)
 
         # DPS burn
-        self.add_trigger(Trigger('burn', """(\w+) tells (?:you|the group), '(burn)"""))
-        self.add_action(Action('burn', self.action_burn))
+        self.new_simple_action('burn', """(\w+) tells (?:you|the group), '(burn)""", command=True)
+        
+        # Potions/Pots
+        self.new_simple_action('potion_instant_heal', """(\w+) tells (?:you|the group), '(instant heal potion)""", command=True)
+        self.new_simple_action('potion_duration_heal', """(\w+) tells (?:you|the group), '(heal over time potion)""", command=True)
+
+        # Auto follow after zone
+        self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
+        self.zoning_follow_timer = Timer.Timer()
+        self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
+
+        # Melody
+        self.new_simple_action('melody', """(\w+) tells (?:you|the group), '(songs)""")
+
+        # Speed
+        self.new_simple_action('speed', """(\w+) tells (?:you|the group), '(bard speed)""", command=True)
+
         
     def load():
         """Returns a new instance of the class. This should match the class name."""
         return Bard()
-
-    def add_approved_name(self, name):
-        self.approved_names.append(name.strip().lower())
-
-    def action_speed(self, data):
-        action_key = self.keys['speed']
-        GameInput.send(action_key)
-        print(f"Performed action 'speed', sent key {action_key}")
-
-    def is_name_approved(self, name) -> bool:
-        name = name.strip().lower()
-        result = False
-        if name in self.approved_names:
-            result = True
-        return result
 
     def update(self):
         """
@@ -100,58 +64,37 @@ class Bard(Persona):
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
-            action_key = self.keys['assist']
-            if (self.assist_timer.alarmed()):
+            action_key = self.get_config_value('assist_on')
+            if self.assist_timer.alarmed():
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
+                GameInput.pause(0.1)
                 self.assist_timer.restart()
                 self.assist_timer.set_alarm(random.randint(1,3))
                 self.assist_timer.start()
 
         if self.avatar_timer.alarmed():
-            action_key = self.keys['swap_to_avatar']
+            action_key = self.get_config_value('bandolier_avatar')
             GameInput.send(action_key)
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
             self.avatar_timer.reset()
 
-    def action_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to follow from {player_name}")
-        action_key = self.keys['follow']
-        if self.is_name_approved(player_name):
+        if self.zoning_follow_timer.alarmed():
+            action_key = self.get_config_value('follow_on')
             GameInput.send(action_key)
-            print(f"Performed action 'follow', sent key {action_key}")
+            print(f"Just zoned. Following.")
+            self.zoning_follow_timer.reset()
 
-    def action_stop_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to stop follow from {player_name}")
-        action_key = self.keys['stop_follow']
-        if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'stop_follow', sent key {action_key}")
-    
-    def action_toggle_songs(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to toggle songs from {player_name}")
-        action_key = self.keys['toggle_songs']
-        if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'toggle_songs', sent key {action_key}")
+    def follow_after_zoning(self, action_name, data):
+        """
+        Starts a timer so that we can automatically start following after zoning.
+        """
+        self.zoning_follow_timer.start()
+        print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
+        print(f"Started: {self.zoning_follow_timer.timer_started}")
+        print(f"Started at: {self.zoning_follow_timer.start_time}")
 
-    def action_bandolier(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        bandolier_name = data.group(2)
-        print(f"Received request to swap to bandolier {bandolier_name} from {player_name}")
-        action_key = self.keys[bandolier_name]
-        if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'bandolier:{bandolier_name}', sent key {action_key}")
-
-    def action_toggle_assist(self, data):
+    def action_toggle_assist(self, action_name, data):
         switch_on = False
         print(f"Data: [{data.group(0)}]")
         player_name = data.group(1)
@@ -170,17 +113,12 @@ class Bard(Persona):
         else:
             self.assist_toggle = False
 
-    def action_avatar(self, data):
+    def action_avatar(self, action_name, data):
         print(f"Avatar procced")
-        action_key = self.keys['swap_to_main']
+        action_key = self.get_config_value('bandolier_primary')
         GameInput.send(action_key)
-        print(f"Performed action 'swap_to_main', sent key {action_key}")
+        print(f"Performed action 'bandolier_primary', sent key {action_key}")
         self.avatar_timer.set_alarm(230)
         self.avatar_timer.start()
-
-    def action_burn(self, data):
-        action_key = self.keys['burn']
-        GameInput.send(action_key)
-        print(f"Performed action 'burn', sent key {action_key}")  
 
     

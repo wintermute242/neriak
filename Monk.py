@@ -10,57 +10,44 @@ class Monk(Persona):
         self.assist_timer.set_alarm(2)
         self.avatar_timer = Timer.Timer()
         self.avatar_timer.set_alarm(230)
-        self.approved_names = []
-        self.keys = {}
 
-        # Load the keys from the ini file.
-        # The key is a name matched in this program for
-        # the intended action and the value is the corresponding 
-        # key stroke(s) sent to the game to accomplish this.
-        with open(self.key_file, 'r') as file:
-            for line in file:
-                key, value = line.strip().lower().split('=')
-                self.keys[key] = value.strip('\n')
-        
-        #--> Add setup here like triggers, actions, etc
-
-        for name in ['Leviathan','Leshy','Orkamungus','Blighted']:
-            self.add_approved_name(name)
+        # Accept group invite
+        self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
 
         # Following
-        self.add_trigger(Trigger('follow', """(\w+) tells (?:you|the group), 'follow me"""))
-        self.add_action(Action('follow', self.action_follow))
-        self.add_trigger(Trigger('stop_follow', """(\w+) tells (?:you|the group), 'stop following"""))
-        self.add_action(Action('stop_follow', self.action_stop_follow))
+        self.new_simple_action('follow_on', """(\w+) tells (?:you|the group), 'follow me""", command=True)
+        self.new_simple_action('follow_off', """(\w+) tells (?:you|the group), 'stop following""", command=True)
 
         # Avatar proc
-        self.add_trigger(Trigger('avatar', """Your body screams with the power of an Avatar"""))
-        self.add_action(Action('avatar', self.action_avatar))
+        self.new_custom_action('avatar', """Your body screams with the power of an Avatar""", self.action_avatar)
+        self.avatar_timer = Timer.Timer()
+        self.avatar_timer.set_alarm(self.get_config_value('avatar_swap_timer'))
 
         # Assist
-        self.add_trigger(Trigger('assist_on', """(\w+) tells (?:you|the group), '(assist me)"""))
-        self.add_action(Action('assist_on', self.action_toggle_assist))
-        self.add_trigger(Trigger('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)"""))
-        self.add_action(Action('assist_off', self.action_toggle_assist))
+        self.new_custom_action('assist_on', """(\w+) tells (?:you|the group), '(assist me)""", 
+            self.action_toggle_assist, command=True)
+        self.new_custom_action('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)""", 
+            self.action_toggle_assist, command=True)
+        self.assist_toggle = False
+        self.assist_timer = Timer.Timer()
+        self.assist_timer.set_alarm(2)
 
         # DPS burn
-        self.add_trigger(Trigger('burn', """(\w+) tells (?:you|the group), '(burn)"""))
-        self.add_action(Action('burn', self.action_burn))
+        self.new_simple_action('burn', """(\w+) tells (?:you|the group), '(burn)""", command=True)
+        
+        # Potions/Pots
+        self.new_simple_action('potion_instant_heal', """(\w+) tells (?:you|the group), '(instant heal potion)""", command=True)
+        self.new_simple_action('potion_duration_heal', """(\w+) tells (?:you|the group), '(heal over time potion)""", command=True)
+
+        # Auto follow after zone
+        self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
+        self.zoning_follow_timer = Timer.Timer()
+        self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
         
     
     def load():
         """Returns a new instance of the class. This should match the class name."""
         return Monk()
-
-    def add_approved_name(self, name):
-        self.approved_names.append(name.strip().lower())
-
-    def is_name_approved(self, name) -> bool:
-        name = name.strip().lower()
-        result = False
-        if name in self.approved_names:
-            result = True
-        return result
 
     def update(self):
         """
@@ -72,51 +59,38 @@ class Monk(Persona):
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
-            action_key = self.keys['assist']
-            evade_key = self.keys['evade']
+            action_key = self.get_config_value('assist_on')
             if self.assist_timer.alarmed():
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
                 GameInput.pause(0.1)
-                GameInput.send(evade_key)
                 self.assist_timer.restart()
                 self.assist_timer.set_alarm(random.randint(1,3))
                 self.assist_timer.start()
 
         if self.avatar_timer.alarmed():
-            action_key = self.keys['swap_to_avatar']
+            action_key = self.get_config_value('bandolier_avatar')
             GameInput.send(action_key)
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
             self.avatar_timer.reset()
 
-
-    def action_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to follow from {player_name}")
-        action_key = self.keys['follow']
-        if self.is_name_approved(player_name):
+        if self.zoning_follow_timer.alarmed():
+            action_key = self.get_config_value('follow_on')
             GameInput.send(action_key)
-            print(f"Performed action 'follow', sent key {action_key}")
+            print(f"Just zoned. Following.")
+            self.zoning_follow_timer.reset()
 
-    def action_stop_follow(self, data):
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        print(f"Received request to stop follow from {player_name}")
-        action_key = self.keys['stop_follow']
-        if self.is_name_approved(player_name):
-            GameInput.send(action_key)
-            print(f"Performed action 'stop_follow', sent key {action_key}")
 
-    def action_avatar(self, data):
+
+    def action_avatar(self, action_name, data):
         print(f"Avatar procced")
-        action_key = self.keys['swap_to_main']
+        action_key = self.get_config_value('bandolier_primary')
         GameInput.send(action_key)
-        print(f"Performed action 'swap_to_main', sent key {action_key}")
+        print(f"Performed action 'bandolier_primary', sent key {action_key}")
         self.avatar_timer.set_alarm(230)
         self.avatar_timer.start()
 
-    def action_toggle_assist(self, data):
+    def action_toggle_assist(self, action_name, data):
         switch_on = False
         print(f"Data: [{data.group(0)}]")
         player_name = data.group(1)
@@ -135,7 +109,11 @@ class Monk(Persona):
         else:
             self.assist_toggle = False
 
-    def action_burn(self, data):
-        action_key = self.keys['burn']
-        GameInput.send(action_key)
-        print(f"Performed action 'burn', sent key {action_key}")
+    def follow_after_zoning(self, action_name, data):
+        """
+        Starts a timer so that we can automatically start following after zoning.
+        """
+        self.zoning_follow_timer.start()
+        print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
+        print(f"Started: {self.zoning_follow_timer.timer_started}")
+        print(f"Started at: {self.zoning_follow_timer.start_time}")
