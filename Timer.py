@@ -21,6 +21,7 @@ class Timer:
         """Stop the timer and store the number of elapsed seconds."""
         now = time.time()
         self.time_elapsed = now - self.start_time
+        self.timer_started = False
 
     def alarmed(self) -> bool:
         """Check whether the timer has alarmed."""
@@ -40,8 +41,9 @@ class Timer:
         return self.timer_started
 
     def reset(self):
-        """Resets the cumulative time"""
+        """Resets and stops the timer"""
         self.time_elapsed = 0
+        self.timer_started = False
         self.start_time = None
 
     def restart(self):

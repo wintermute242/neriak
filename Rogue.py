@@ -40,6 +40,11 @@ class Rogue(Persona):
         self.zoning_follow_timer = Timer.Timer()
         self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
 
+        # Detect combat
+        self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage)""", remote_timer=True, timer_max=5))
+        self.actions.append(Action('in_combat', self.update_combat_status))
+        self.in_combat = False
+
     def load():
         """Returns a new instance of the class. This should match the class name."""
         return Rogue()
@@ -56,7 +61,7 @@ class Rogue(Persona):
         if self.assist_toggle:
             action_key = self.get_config_value('assist_on')
             evade_key = self.get_config_value('evade')
-            if self.assist_timer.alarmed():
+            if self.assist_timer.alarmed() and self.in_combat:
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
                 GameInput.pause(0.1)
@@ -95,6 +100,16 @@ class Rogue(Persona):
         else:
             self.assist_toggle = False
             print(f"Assist toggle OFF")
+
+    def update_combat_status(self, action_name, data):
+        """
+        Updates whether we are in combat
+        """
+        if data == 'timer_started':
+            self.in_combat = True
+        
+        else:
+            self.in_combat = False
 
     def follow_after_zoning(self, action_name, data):
         """
