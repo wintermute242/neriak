@@ -38,6 +38,7 @@ def send(key_value):
         send_key(keys[0])
 
 def send_key(key_name):
+    pydirectinput.FAILSAFE = False
     print("send_key")
     # DirectInput Key Codes 
     # at https://github.com/learncodebygaming/pydirectinput/blob/master/pydirectinput/__init__.py
@@ -45,13 +46,15 @@ def send_key(key_name):
     pydirectinput.press(key_name)
 
 def send_keys(keys):
+    pydirectinput.FAILSAFE = False
     get_focus()
     for key in keys:
         pydirectinput.press(key)
 
 
-def send_key_combination(*keys):
-    print("send_key_combination")
+def send_key_combination(keys):
+    pydirectinput.FAILSAFE = False
+    print(f"send_key_combination {keys}")
     get_focus()
     for key in keys:
         pydirectinput.keyDown(key)
