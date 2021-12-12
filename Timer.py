@@ -27,9 +27,8 @@ class Timer:
         now = time.time()
 
         try:
-            elapsed = now - self.start_time
-            print(f"Elapsed time: {elapsed}")
-            if elapsed > self.max_time_elapsed:
+            self.time_elapsed = now - self.start_time
+            if self.time_elapsed > self.max_time_elapsed:
                 return True
         
         except TypeError:

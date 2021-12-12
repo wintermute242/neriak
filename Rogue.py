@@ -77,6 +77,8 @@ class Rogue(Persona):
             print(f"Just zoned. Following.")
             self.zoning_follow_timer.reset()
 
+        print(f"{self.zoning_follow_timer.time_elapsed}")
+
     def action_avatar(self, action_name, data):
         print(f"Avatar procced")
         action_key = self.get_config_value('bandolier_primary')
