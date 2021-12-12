@@ -29,13 +29,15 @@ def pause(seconds):
 
 
 def send(key_value):
-    keys = key_value.split('+')
+    # Only run if the value is not None
+    if key_value:
+        keys = key_value.split('+')
 
-    if len(keys) > 1:
-        send_key_combination(keys)
+        if len(keys) > 1:
+            send_key_combination(keys)
     
-    else:
-        send_key(keys[0])
+        else:
+            send_key(keys[0])
 
 def send_key(key_name):
     pydirectinput.FAILSAFE = False
