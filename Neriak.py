@@ -23,7 +23,7 @@ class Persona:
         server_name = self.config[name]['server_name'].lower()
         log_file_name = f"eqlog_{character_name}_{server_name}.txt"
         full_log_path = os.path.join(log_dir, log_file_name)
-        self.log_path = full_log_path
+        self.log_file_path = full_log_path
         
         # All of the triggers registered for the Persona.
         # Each trigger has a regex that is evaluated against new entries in the log file
