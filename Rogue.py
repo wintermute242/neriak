@@ -41,7 +41,7 @@ class Rogue(Persona):
         self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
 
         # Detect combat
-        self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage)""", remote_timer=True, timer_max=5))
+        self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage""", remote_timer=True, timer_max=5))
         self.actions.append(Action('in_combat', self.update_combat_status))
         self.in_combat = False
 
@@ -61,7 +61,7 @@ class Rogue(Persona):
         if self.assist_toggle:
             action_key = self.get_config_value('assist_on')
             evade_key = self.get_config_value('evade')
-            
+
             if self.assist_timer.alarmed() and self.in_combat:
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
@@ -84,6 +84,10 @@ class Rogue(Persona):
             self.zoning_follow_timer.reset()
 
     def action_avatar(self, action_name, data):
+        """
+        Triggered when the avatar proc is seen. Swaps back to primary
+        weapon set until the avatar buff is a little over 2/3 done.
+        """
         print(f"Avatar procced")
         action_key = self.get_config_value('bandolier_primary')
         GameInput.send(action_key)
@@ -106,11 +110,13 @@ class Rogue(Persona):
         """
         Updates whether we are in combat
         """
-        if data == 'timer_started':
+        print(f"update_combat_status(): data:{data}")
+        if data == 'timer started':
             self.in_combat = True
-        
+            print("Now in combat")
         else:
             self.in_combat = False
+            print("Exiting combat")
 
     def follow_after_zoning(self, action_name, data):
         """
