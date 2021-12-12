@@ -1,5 +1,5 @@
 from Neriak import *
-import argparse, shutil
+import argparse, shutil, sys
 import os.path
 
 parser = argparse.ArgumentParser(description=
@@ -21,7 +21,7 @@ if not os.path.exists('neriak.ini'):
         print("No configuration file 'neriak.ini' or example file 'example_neriak.ini' was found.")
         print("Please create these files or download a new copy from the repo.")
     
-    os.exit(1)
+    sys.exit(1)
 
 
 # Dynamically load the module specified on the command line. Assumes Module and Class name are the same.
