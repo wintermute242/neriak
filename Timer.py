@@ -10,7 +10,7 @@ class Timer:
 
     def set_alarm(self, seconds):
         """Set the alarm to go off after the specified number of seconds"""
-        self.max_time_elapsed = seconds
+        self.max_time_elapsed = int(seconds)
 
     def start(self):
         """Start the timer by storing the current time."""
