@@ -59,7 +59,7 @@ class Persona:
         self.add_trigger(Trigger(action_name, trigger_string))
         self.add_action(Action(action_name, self.run_simple_action, command))
 
-    def run_simple_action(self, action_name):
+    def run_simple_action(self, action_name, data):
         """
         Executes a simple action.
         """
