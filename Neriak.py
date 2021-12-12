@@ -133,7 +133,7 @@ class Action:
 
     def execute(self, data):
         """Pass in the data from the event to each function in the sequence"""
-        print("Executing action {self.name}")
+        print(f"Executing action {self.name}")
         self.func(self.name, data)
 
 class Controller():

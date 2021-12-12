@@ -87,7 +87,7 @@ class Rogue(Persona):
 
     def action_toggle_assist(self, action_name, data):
         if action_name == 'assist_on':
-            self.assist_timer.set_alarm(random.randint(1,3))
+            self.assist_timer.set_alarm(random.randint(2,4))
             self.assist_timer.start()
             self.assist_toggle = True
             print(f"Assist toggle ON")
@@ -103,3 +103,4 @@ class Rogue(Persona):
         self.zoning_follow_timer.start()
         print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
         print(f"Started: {self.zoning_follow_timer.timer_started}")
+        print(f"Started at: {self.zoning_follow_timer.start_time}")
