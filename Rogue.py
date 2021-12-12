@@ -101,3 +101,4 @@ class Rogue(Persona):
         Starts a timer so that we can automatically start following after zoning.
         """
         self.zoning_follow_timer.start()
+        print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
