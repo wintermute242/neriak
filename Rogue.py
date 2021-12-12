@@ -51,9 +51,6 @@ class Rogue(Persona):
         calls is a either the time needed to process a particular event or the sleep_time
         parameter passed to Agent.
         """
-        print(f"Started: {self.zoning_follow_timer.is_started()}")
-        print(f"Elapsed: {self.zoning_follow_timer.time_elapsed}")
-        print(f"Max Seconds: {self.zoning_follow_timer.max_time_elapsed}")
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
@@ -105,3 +102,4 @@ class Rogue(Persona):
         """
         self.zoning_follow_timer.start()
         print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
+        print(f"Started: {self.zoning_follow_timer.timer_started}")
