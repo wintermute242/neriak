@@ -95,23 +95,15 @@ class Bard(Persona):
         print(f"Started at: {self.zoning_follow_timer.start_time}")
 
     def action_toggle_assist(self, action_name, data):
-        switch_on = False
-        print(f"Data: [{data.group(0)}]")
-        player_name = data.group(1)
-        assist_command = data.group(2)
-        if assist_command == 'assist me':
-            switch_on = True
-        
-        print(f"Received request to assist:{switch_on} from {player_name}")
-        if switch_on:
-            self.assist_timer.set_alarm(random.randint(1,3))
+        if action_name == 'assist_on':
+            self.assist_timer.set_alarm(random.randint(2,4))
             self.assist_timer.start()
-
-            if self.is_name_approved(player_name):
-                self.assist_toggle = True
+            self.assist_toggle = True
+            print(f"Assist toggle ON")
 
         else:
             self.assist_toggle = False
+            print(f"Assist toggle OFF")
 
     def action_avatar(self, action_name, data):
         print(f"Avatar procced")
