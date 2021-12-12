@@ -75,6 +75,7 @@ class Rogue(Persona):
             action_key = self.get_config_value('follow_on')
             GameInput.send(action_key)
             print(f"Just zoned. Following.")
+            self.zoning_follow_timer.reset()
 
     def action_avatar(self, action_name, data):
         print(f"Avatar procced")
