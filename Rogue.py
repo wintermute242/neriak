@@ -33,7 +33,7 @@ class Rogue(Persona):
         self.new_simple_action('potion_duration_heal', """(\w+) tells (?:you|the group), '(heal over time potion)""", command=True)
 
         # Auto follow after zone
-        self.new_custom_action('follow_on',"""You have entered (.*)""", self.follow_after_zoning)
+        self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
         self.zoning_follow_timer = Timer.Timer()
         self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
 
