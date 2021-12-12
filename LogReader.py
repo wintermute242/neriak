@@ -10,7 +10,7 @@ class LogReader:
         self.event_triggers = persona.triggers
         self.triggers = persona.triggers
         try:
-            self.log_path = open(persona.log_file_path, 'r')
+            self.log_file = open(persona.log_file_path, 'r')
             print(f"Opened log file '{persona.log_file_path}'")
         
         except Exception as e:
