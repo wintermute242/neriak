@@ -47,6 +47,9 @@ class Bard(Persona):
         self.new_simple_action('melody', """(\w+) tells (?:you|the group), '(songs)""")
 
         # Speed
+        self.new_simple_action('slow', """(\w+) tells (?:you|the group), '(bard slow)""", command=True)
+
+        # Slow melody
         self.new_simple_action('speed', """(\w+) tells (?:you|the group), '(bard speed)""", command=True)
 
         # Dark elf mask
