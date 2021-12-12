@@ -7,6 +7,9 @@ class Rogue(Persona):
         super().__init__(name=__name__)
         #--> Add setup here like triggers, actions, etc
 
+        # Accept group invite
+        self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
+
         # Following
         self.new_simple_action('follow_on', """(\w+) tells (?:you|the group), 'follow me""", command=True)
         self.new_simple_action('follow_off', """(\w+) tells (?:you|the group), 'stop following""", command=True)
