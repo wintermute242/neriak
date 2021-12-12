@@ -51,6 +51,7 @@ class Rogue(Persona):
         calls is a either the time needed to process a particular event or the sleep_time
         parameter passed to Agent.
         """
+        print("Update ran")
         # This gets called roughly every tenth of a second by default. You can do this like
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
