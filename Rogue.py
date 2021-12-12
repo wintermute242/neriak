@@ -61,13 +61,14 @@ class Rogue(Persona):
         if self.assist_toggle:
             action_key = self.get_config_value('assist_on')
             evade_key = self.get_config_value('evade')
+            
             if self.assist_timer.alarmed() and self.in_combat:
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
                 GameInput.pause(0.1)
                 GameInput.send(evade_key)
                 self.assist_timer.restart()
-                self.assist_timer.set_alarm(random.randint(1,3))
+                self.assist_timer.set_alarm(random.randint(2,4))
                 self.assist_timer.start()
 
         if self.avatar_timer.alarmed():

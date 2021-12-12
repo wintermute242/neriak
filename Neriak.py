@@ -80,9 +80,17 @@ class Persona:
 
     def get_config_value(self, key):
         """
-        Returns the value for the requested key from the configuration file.
+        Looks up the value of the requested key from the configuration file.
+        Returns the value if found, otherwise None.
         """
-        return self.config[self.persona_name][key]
+        value = None
+        try:
+            value = self.config[self.persona_name][key]
+        
+        except KeyError:
+            pass
+        
+        return value 
 
     def process_event(self, event):
         """Event handler"""
