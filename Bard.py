@@ -4,7 +4,7 @@ import GameInput, Timer, random
 class Bard(Persona):
     # Initialize the superclass
     def __init__(self):
-        super().__init__(name=__name__, log=self.log_path, keys=self.key_file)
+        super().__init__(name=__name__)
         self.assist_toggle = False
         self.assist_timer = Timer.Timer()
         self.avatar_timer = Timer.Timer()
