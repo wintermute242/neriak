@@ -5,6 +5,7 @@ class Cleric(Persona):
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__)
+        self.pants_toggle = False
         self.pants_timer = Timer.Timer()
         self.pants_timer.set_alarm(11)
 
