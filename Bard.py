@@ -50,7 +50,7 @@ class Bard(Persona):
         self.new_simple_action('speed', """(\w+) tells (?:you|the group), '(bard speed)""", command=True)
 
         # Dark elf mask
-        self.new_simple_action('dark_elf_mask' """(\w+) tells (?:you|the group), '(mask up)""", command=True)
+        self.new_simple_action('dark_elf_mask', """(\w+) tells (?:you|the group), '(mask up)""", command=True)
         
     def load():
         """Returns a new instance of the class. This should match the class name."""

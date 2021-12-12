@@ -45,7 +45,10 @@ class Monk(Persona):
         self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
         
         # Dark elf mask
-        self.new_simple_action('dark_elf_mask' """(\w+) tells (?:you|the group), '(mask up)""", command=True)
+        self.new_simple_action('dark_elf_mask', """(\w+) tells (?:you|the group), '(mask up)""", command=True)
+
+        # Feign death
+        self.new_simple_action('feign_death', """"(\w+) tells (?:you|the group), '(flop)""", command=True)
     
     def load():
         """Returns a new instance of the class. This should match the class name."""
