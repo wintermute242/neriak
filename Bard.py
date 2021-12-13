@@ -70,7 +70,7 @@ class Bard(Persona):
         # check timers to see how much time has elapsed, and take actions if necessary.
         if self.assist_toggle:
             action_key = self.get_config_value('assist_on')
-            if self.assist_timer.alarmed():
+            if self.assist_timer.alarmed() and self.in_combat:
                 GameInput.send(action_key)
                 print(f"Performed action 'assist', sent key {action_key}")
                 GameInput.pause(0.1)
@@ -109,6 +109,18 @@ class Bard(Persona):
         else:
             self.assist_toggle = False
             print(f"Assist toggle OFF")
+
+    def update_combat_status(self, action_name, data):
+        """
+        Updates whether we are in combat
+        """
+        print(f"update_combat_status(): data:{data}")
+        if data == 'timer started':
+            self.in_combat = True
+            print("Now in combat")
+        else:
+            self.in_combat = False
+            print("Exiting combat")
 
     def action_avatar(self, action_name, data):
         print(f"Avatar procced")
