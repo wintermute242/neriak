@@ -54,6 +54,11 @@ class Bard(Persona):
 
         # Dark elf mask
         self.new_simple_action('dark_elf_mask', """(\w+) tells (?:you|the group), '(mask up)""", command=True)
+
+        # Detect combat
+        self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage""", remote_timer=True, timer_max=5))
+        self.actions.append(Action('in_combat', self.update_combat_status))
+        self.in_combat = False
         
     def load():
         """Returns a new instance of the class. This should match the class name."""
