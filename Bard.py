@@ -85,6 +85,7 @@ class Bard(Persona):
 
         if self.avatar_timer.alarmed():
             action_key = self.get_config_value('bandolier_avatar')
+            GameInput.pause(0.2)
             GameInput.send(action_key)
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
             self.avatar_timer.reset()

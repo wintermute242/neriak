@@ -79,6 +79,7 @@ class Rogue(Persona):
 
         if self.zoning_follow_timer.alarmed():
             action_key = self.get_config_value('follow_on')
+            GameInput.pause(0.2)
             GameInput.send(action_key)
             print(f"Just zoned. Following.")
             self.zoning_follow_timer.reset()

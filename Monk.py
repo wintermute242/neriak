@@ -99,6 +99,7 @@ class Monk(Persona):
     def action_avatar(self, action_name, data):
         print(f"Avatar procced")
         action_key = self.get_config_value('bandolier_primary')
+        GameInput.pause(0.2)
         GameInput.send(action_key)
         print(f"Performed action 'bandolier_primary', sent key {action_key}")
         self.avatar_timer.set_alarm(230)
