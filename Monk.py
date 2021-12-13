@@ -50,6 +50,9 @@ class Monk(Persona):
         # Feign death
         self.new_simple_action('feign_death', """"(\w+) tells (?:you|the group), '(flop)""", command=True)
 
+        # Feign death
+        self.new_simple_action('mend', """"(\w+) tells (?:you|the group), '(mend)""", command=True)
+
         # Detect combat
         self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage""", remote_timer=True, timer_max=5))
         self.actions.append(Action('in_combat', self.update_combat_status))
