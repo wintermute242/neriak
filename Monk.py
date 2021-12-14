@@ -54,7 +54,8 @@ class Monk(Persona):
         self.new_simple_action('mend', """"(\w+) tells (?:you|the group), '(mend)""", command=True)
 
         # Detect combat
-        self.triggers.append(Trigger('in_combat',"""(?:Leviathan|Gillea|Deathly|Nakai|Orkamungus|Leshy).*for \d+ points of damage""", remote_timer=True, timer_max=5))
+        group_members = self.get_config_value('group_members').replace(',','|')
+        self.triggers.append(Trigger('in_combat',f"""(?:{group_members}).*for \d+ points of damage""", remote_timer=True, timer_max=5))
         self.actions.append(Action('in_combat', self.update_combat_status))
         self.in_combat = False
     
