@@ -17,7 +17,7 @@ class Rogue(Persona):
         # Avatar proc
         self.new_custom_action('avatar', """Your body screams with the power of an Avatar""", self.action_avatar)
         self.avatar_timer = Timer.Timer()
-        self.avatar_timer.set_alarm(self.get_config_value('avatar_swap_timer'))
+        self.avatar_timer.set_alarm(230)
 
         # Assist
         self.new_custom_action('assist_on', """(\w+) tells (?:you|the group), '(assist me)""", 
