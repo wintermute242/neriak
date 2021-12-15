@@ -48,10 +48,10 @@ class Monk(Persona):
         self.new_simple_action('dark_elf_mask', """(\w+) tells (?:you|the group), '(mask up)""", command=True)
 
         # Feign death
-        self.new_simple_action('feign_death', """"(\w+) tells (?:you|the group), '(flop)""", command=True)
+        self.new_simple_action('feign_death', """(\w+) tells (?:you|the group), '(flop)""", command=True)
 
-        # Feign death
-        self.new_simple_action('mend', """"(\w+) tells (?:you|the group), '(mend)""", command=True)
+        # Mend
+        self.new_simple_action('mend', """(\w+) tells (?:you|the group), '(mend)""", command=True)
 
         # Detect combat
         group_members = self.get_config_value('group_members').replace(',','|')
