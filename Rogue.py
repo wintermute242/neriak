@@ -29,7 +29,7 @@ class Rogue(Persona):
         self.assist_timer.set_alarm(2)
 
         # DPS burn
-        self.new_simple_action('burn', """(\w+) tells (?:you|the group), '(burn)""", command=True)
+        self.new_simple_action('disc_burn', """(\w+) tells (?:you|the group), '(burn)""", command=True)
         
         # Potions/Pots
         self.new_simple_action('potion_instant_heal', """(\w+) tells (?:you|the group), '(instant heal potion)""", command=True)
