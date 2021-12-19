@@ -1,5 +1,5 @@
 from LogReader import LogReader
-import queue, threading, time, re, keyboard, configparser, GameInput, os
+import queue, threading, time, re, keyboard, configparser, GameInput, os, sys, Timer, datetime
 
 class Persona:
     """
@@ -18,9 +18,20 @@ class Persona:
         self.config.read('neriak.ini')
         
         # Log setup
-        log_dir = self.config[name]['everquest_log_directory']
-        character_name = self.config[name]['character_name'].capitalize()
-        server_name = self.config[name]['server_name'].lower()
+        log_dir = self.get_config_value('everquest_log_directory')
+        
+        try:
+            character_name = self.get_config_value('character_name').capitalize()
+        except AttributeError:
+            print("[Config] Error: No character name provided in neriak.ini")
+            sys.exit(1)
+
+        try:
+            server_name = self.get_config_value('server_name').lower()
+        except AttributeError:
+            print("[Config] Error: No server name provided in neriak.ini")
+            sys.exit(1)
+        
         log_file_name = f"eqlog_{character_name}_{server_name}.txt"
         full_log_path = os.path.join(log_dir, log_file_name)
         self.log_file_path = full_log_path
@@ -31,7 +42,26 @@ class Persona:
         # are mapped by a common name value.
         self.triggers = []
         self.actions = []
-        self.approved_names = self.config[name]['accept_commands_from'].split(',')
+        self.toggle = {}
+
+        try:
+            self.approved_names = [ name.strip() for name in self.get_config_value('accept_commands_from').split(',') ]
+        except AttributeError:
+            self.approved_names = None
+
+    def get_config_value(self, key):
+        """
+        Looks up the value of the requested key from the configuration file.
+        Returns the value if found, otherwise None.
+        """
+        value = None
+        try:
+            value = self.config[self.persona_name][key]
+        
+        except KeyError:
+            pass
+        
+        return value 
 
     def add_action(self, action):
         """Registers a new action for the persona"""
@@ -40,6 +70,11 @@ class Persona:
     def add_trigger(self, trigger):
         """Registers a new trigger for the persona"""
         self.triggers.append(trigger)
+
+    def new_simple_toggle_action(self, action_name, toggle_on_string, toggle_off_string, command=False, timer_seconds=2):
+        self.add_trigger(Trigger(action_name, toggle_on_string, flag='ON'))
+        self.add_action(Action(action_name, self.run_simple_toggle_action, command, toggle=True, toggle_timer_seconds=timer_seconds))
+        self.add_trigger(Trigger(action_name, toggle_off_string, flag='OFF'))
 
     def new_custom_action(self, action_name, trigger_string, func, command=False):
         """
@@ -59,7 +94,21 @@ class Persona:
         self.add_trigger(Trigger(action_name, trigger_string))
         self.add_action(Action(action_name, self.run_simple_action, command))
 
-    def run_simple_action(self, action_name, data):
+    def run_simple_toggle_action(self, action_name, data):
+        action = self.get_action_by_name(action_name)
+
+        if flag == 'ON':
+            action. = True
+        
+        elif flag == 'OFF':
+            self.toggle[base_action_name] = False
+
+        else:
+            print(f"run_simple_toggle_action(): Action name {action_name} could not be parsed.")
+
+
+
+    def run_simple_action(self, action_name, data, flag=None):
         """
         Executes a simple action.
         """
@@ -78,20 +127,6 @@ class Persona:
         
         return action
 
-    def get_config_value(self, key):
-        """
-        Looks up the value of the requested key from the configuration file.
-        Returns the value if found, otherwise None.
-        """
-        value = None
-        try:
-            value = self.config[self.persona_name][key]
-        
-        except KeyError:
-            pass
-        
-        return value 
-
     def process_event(self, event):
         """Event handler"""
         data = event.match
@@ -100,25 +135,29 @@ class Persona:
         # Check if this is a command trigger and if so whether
         # it is approved.
         if action.command:
-            commander_name = data.group(1)
-            print(f"Command issued by {commander_name}... ",end='')
-            if not commander_name in self.approved_names:
-                print("Denied")
-                return
+            # If no values were entered in the config then no approvals are implied
+            if self.approved_names:
+                commander_name = data.group(1)
+                print(f"Command issued by {commander_name}... ",end='')
+                if not commander_name in self.approved_names:
+                    print("Denied... {commander_name} is not in {self.approved_names}.")
+                    return
     
-            print("Approved")
-        action.execute(data)
+                print("Approved")
+        
+        action.execute(data, flag=event.flag)
 
 class Trigger:
     """
     A named regex which when matched triggers an event. 
     This is will be matched against every incoming line from log files.
     """
-    def __init__(self, name, regex, remote_timer=False, timer_max=0):
+    def __init__(self, name, regex, remote_timer=False, timer_max=0, flag=None):
         self.name  = name
         self.regex = re.compile(regex, re.IGNORECASE)
         self.remote_timer = remote_timer
         self.remote_timer_max = timer_max
+        self.flag = flag
 
 class Event:
     """
@@ -129,22 +168,36 @@ class Event:
     name of a spell, a character, or the amount of damage taken or 
     healed.
     """
-    def __init__(self, name, match):
+    def __init__(self, name, match, flag=None):
         """An object to encapsulate a task name and a regular expression match object."""
         self.name  = name
         self.match = match
+        self.flag = flag
 
 class Action:
     """An action that an agent may perform such as sending keyboard input or mouseclicks to a window."""
-    def __init__(self, name, func, command=False):
+    def __init__(self, name, func, command=False, toggle=False, toggle_timer_seconds=2):
         self.name = name
         self.func = func
         self.command = command
+        self.toggle = toggle
+        if self.toggle:
+            self.timer = Timer.Timer()
+            self.timer.set_alarm(toggle_timer_seconds)
 
-    def execute(self, data):
+    def execute(self, data, flag):
         """Pass in the data from the event to each function in the sequence"""
+        if self.toggle:
+            if self.timer.timer_started:
+                if not self.timer.time_elapsed():
+                    return
+            else:
+                self.timer.start()
+
         print(f"Executing action {self.name}")
-        self.func(self.name, data)
+        self.func(self.name, data, flag=self.flag)
+        if self.toggle:
+            self.timer.reset()
 
 class Controller():
     """

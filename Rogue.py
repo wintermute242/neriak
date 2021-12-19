@@ -1,18 +1,12 @@
 from Neriak import *
+from Default import Default
 import GameInput, Timer, random
 
-class Rogue(Persona):
+class Rogue(Default):
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__)
         #--> Add setup here like triggers, actions, etc
-
-        # Accept group invite
-        self.new_simple_action('accept_group', """(\w+) invites you to join a group.""", command=True)
-
-        # Following
-        self.new_simple_action('follow_on', """(\w+) tells (?:you|the group), 'follow me""", command=True)
-        self.new_simple_action('follow_off', """(\w+) tells (?:you|the group), 'stop following""", command=True)
 
         # Avatar proc
         self.new_custom_action('avatar', """Your body screams with the power of an Avatar""", self.action_avatar)
@@ -31,20 +25,6 @@ class Rogue(Persona):
         # DPS burn
         self.new_simple_action('disc_burn', """(\w+) tells (?:you|the group), '(burn)""", command=True)
         
-        # Potions/Pots
-        self.new_simple_action('potion_instant_heal', """(\w+) tells (?:you|the group), '(instant heal potion)""", command=True)
-        self.new_simple_action('potion_duration_heal', """(\w+) tells (?:you|the group), '(heal over time potion)""", command=True)
-
-        # Auto follow after zone
-        self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
-        self.zoning_follow_timer = Timer.Timer()
-        self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
-
-        # Detect combat
-        group_members = self.get_config_value('group_members').replace(',','|')
-        self.triggers.append(Trigger('in_combat',f"""(?:{group_members}).*for \d+ points of damage""", remote_timer=True, timer_max=5))
-        self.actions.append(Action('in_combat', self.update_combat_status))
-        self.in_combat = False
 
     def load():
         """Returns a new instance of the class. This should match the class name."""
@@ -78,25 +58,6 @@ class Rogue(Persona):
             print(f"Performed action 'swap_to_avatar_weapons', sent key {action_key}")
             self.avatar_timer.reset()
 
-        if self.zoning_follow_timer.alarmed():
-            action_key = self.get_config_value('follow_on')
-            GameInput.pause(0.2)
-            GameInput.send(action_key)
-            print(f"Just zoned. Following.")
-            self.zoning_follow_timer.reset()
-
-    def action_avatar(self, action_name, data):
-        """
-        Triggered when the avatar proc is seen. Swaps back to primary
-        weapon set until the avatar buff is a little over 2/3 done.
-        """
-        print(f"Avatar procced")
-        action_key = self.get_config_value('bandolier_primary')
-        GameInput.send(action_key)
-        print(f"Performed action 'bandolier_primary', sent key {action_key}")
-        self.avatar_timer.set_alarm(230)
-        self.avatar_timer.start()
-
     def action_toggle_assist(self, action_name, data):
         if action_name == 'assist_on':
             self.assist_timer.set_alarm(random.randint(2,4))
@@ -107,24 +68,3 @@ class Rogue(Persona):
         else:
             self.assist_toggle = False
             print(f"Assist toggle OFF")
-
-    def update_combat_status(self, action_name, data):
-        """
-        Updates whether we are in combat
-        """
-        print(f"update_combat_status(): data:{data}")
-        if data == 'timer started':
-            self.in_combat = True
-            print("Now in combat")
-        else:
-            self.in_combat = False
-            print("Exiting combat")
-
-    def follow_after_zoning(self, action_name, data):
-        """
-        Starts a timer so that we can automatically start following after zoning.
-        """
-        self.zoning_follow_timer.start()
-        print(f"Zoning timer set for {self.zoning_follow_timer.max_time_elapsed} seconds")
-        print(f"Started: {self.zoning_follow_timer.timer_started}")
-        print(f"Started at: {self.zoning_follow_timer.start_time}")
