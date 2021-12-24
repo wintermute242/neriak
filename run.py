@@ -1,6 +1,5 @@
-from Neriak import *
-import argparse, shutil, sys
-import os.path
+import argparse, shutil, sys, os.path, threading, keyboard
+import LogReader
 
 parser = argparse.ArgumentParser(description=
     'Implements a player agent for EverQuest by loading "Personas" defined as Python modules which define agent behavior to specified event triggers.'
@@ -24,11 +23,23 @@ if not os.path.exists('neriak.ini'):
     sys.exit(1)
 
 
-# Dynamically load the module specified on the command line. Assumes Module and Class name are the same.
-module = __import__(persona_name)
-dynamic_persona = getattr(module, persona_name)
-persona = dynamic_persona.load()
-
-# Run the persona under a controller
-controller = Controller(persona)
-controller.run()
+# Set daemon flag so that new threads stop
+# once the main thread calls system.exit().
+reader = threading.Thread(target=
+            LogReader(persona, queue).run,
+            daemon=True
+        )
+        
+agent = threading.Thread(target=
+            Agent(persona, queue).run,
+            daemon=True
+        )
+        
+# Start execution of producer and consumer threads
+# which will now run independently so long as the
+# main thread is alive.
+reader.start()
+agent.start()
+        
+# Block until the hotkey combination is detected at which point the program exits
+keyboard.wait('ctrl+shift+z')
