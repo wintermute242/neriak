@@ -32,6 +32,9 @@ class Persona:
         self.triggers = []
         self.actions = []
         self.approved_names = self.config[name]['accept_commands_from'].split(',')
+        self.simple_trigger = self.config[name]['press_key_trigger']
+        self.add_trigger(Trigger("simple", f"^{self.simple_trigger} (.*)$"))
+        self.add_action(Action("simple", self.run_simple_action, True))
 
     def add_action(self, action):
         """Registers a new action for the persona"""
@@ -41,32 +44,13 @@ class Persona:
         """Registers a new trigger for the persona"""
         self.triggers.append(trigger)
 
-    def new_custom_action(self, action_name, trigger_string, func, command=False):
-        """
-        Custom actions that require special logic may pass in a function to be called
-        when the event has triggered. If the action is intended to only be triggered by 
-        a command from a specific list of people then command should be set to True.
-        """
-        self.add_trigger(Trigger(action_name, trigger_string))
-        self.add_action(Action(action_name, func, command))
-
-    def new_simple_action(self, action_name, trigger_string, command=False):
-        """
-        Most persona actions are a simple keypress in response to a trigger phrase.
-        If the action is intended to only be triggered by a command from a specific 
-        list of people then command should be set to True.
-        """
-        self.add_trigger(Trigger(action_name, trigger_string))
-        self.add_action(Action(action_name, self.run_simple_action, command))
-
-    def run_simple_action(self, action_name, data):
+    def run_simple_action(self, _, data):
         """
         Executes a simple action.
         """
-        print(f"Simple action {action_name} triggered")
-        action_key = self.get_config_value(action_name)
-        GameInput.send(action_key)
-        print(f"Completed simple action {action_name}")
+        key_press = data.group(1)
+        GameInput.send(key_press)
+        print(f"Pressed key '{key_press}'")
 
     def get_action_by_name(self, name):
         """Matches a triggered event to a registered action by name."""

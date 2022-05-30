@@ -3,7 +3,7 @@ import pydirectinput
 import time
 
 def get_focus():
-    program_name = 'EverQuest'
+    program_name = 'EverQuest 2'
     handle = win32gui.FindWindow(None, program_name)
 
     if handle != 0:
