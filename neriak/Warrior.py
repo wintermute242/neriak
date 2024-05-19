@@ -1,6 +1,9 @@
-from Neriak import *
-from Timer import Timer
-import os, GameInput
+from neriak.Neriak import Persona
+from neriak.Neriak import Trigger
+from neriak.Neriak import Action
+from neriak.util.Timer import Timer
+from neriak.util import GameInput
+import os
 
 class Warrior(Persona):
     # Initialize the superclass

@@ -1,4 +1,8 @@
-import time, Neriak, sys, Timer
+from neriak.util.Timer import Timer
+import neriak.Neriak as Neriak
+import sys
+import time
+
 
 class LogReader:
     """

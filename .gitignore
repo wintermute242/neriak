@@ -1,1 +1,3 @@
 neriak.ini
+.venv/*
+**/__pycache__/*

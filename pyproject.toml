@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neriak"
+version = "0.1.0"
+authors = [{ name = "wintermute242", email = "wintermute242@protonmail.com" }]
+description = "A "
+readme = "README.md"
+
+dependencies = [
+    "pyautogui",
+    "keyboard",
+    "pydirectinput; platform_system == 'Windows'",
+    "pywin32; sys.platform == 'Windows'",
+    "xdolib; sys.platform == 'Linux'"
+]
+
+[project.scripts]
+neriak = "neriak.run:main"

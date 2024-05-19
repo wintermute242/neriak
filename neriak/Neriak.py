@@ -1,5 +1,12 @@
-from LogReader import LogReader
-import queue, threading, time, re, keyboard, configparser, GameInput, os
+from neriak.util.LogReader import LogReader
+from neriak.util import GameInput
+import queue
+import threading
+import time
+import re
+import keyboard
+import configparser
+import os
 
 class Persona:
     """
