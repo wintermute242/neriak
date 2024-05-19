@@ -22,11 +22,14 @@ class Persona:
         self.persona_name = name
         # Read in the configuration file
         self.config = configparser.ConfigParser()
-        self.config.read('neriak.ini')
+        self.config.read(
+            os.path.join(
+                os.path.dirname(__file__),
+                'neriak.ini'))
         
         # Log setup
         log_dir = self.config[name]['everquest_log_directory']
-        character_name = self.config[name]['character_name'].capitalize()
+        character_name = self.config[name]['character_name'].lower().capitalize()
         server_name = self.config[name]['server_name'].lower()
         log_file_name = f"eqlog_{character_name}_{server_name}.txt"
         full_log_path = os.path.join(log_dir, log_file_name)

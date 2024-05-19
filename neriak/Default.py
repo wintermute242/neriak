@@ -1,19 +1,15 @@
-from Neriak import *
+from neriak.Neriak import Persona
 
 class Default(Persona):
     #--> Initialize any persona specific variables here
 
     # Initialize the superclass
     def __init__(self):
-        super().__init__(__name__, self.log_path, self.key_file)
+        super().__init__('Default')
         #--> Add setup here like triggers, actions, etc
-        
-    
-    def load():
-        """Returns a new instance of the class. This should match the class name."""
-        return Default()
 
-    def update():
+
+    def update(self):
         """
         Any long term state can be maintained here. This will get called so that flow of 
         execution can be periodically returned to the player persona. The amount of time between

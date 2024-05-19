@@ -1,4 +1,5 @@
 from neriak.Neriak import Controller
+import importlib
 import argparse
 import shutil
 import sys
@@ -13,12 +14,15 @@ def main():
     persona_name = "Default"
 
     if args.persona:
-        persona_name = args.persona
+        persona_name = args.persona.lower().capitalize()
 
-    if not os.path.exists('neriak.ini'):
-        if os.path.exists('example_neriak.ini'):
+    current_dir = os.path.dirname(__file__)
+    config_path = os.path.join(current_dir, 'neriak.ini')
+    example_path = os.path.join(current_dir, 'example_neriak.ini')
+    if not os.path.exists(config_path):
+        if os.path.exists(example_path):
             print("No configuration file found. Creating copy from 'example_neriak.ini'")
-            shutil.copyfile('example_neriak.ini','neriak.ini')
+            shutil.copyfile(example_path, config_path)
             print("Please setup 'neriak.ini' and run this program again.")
         else:
             print("No configuration file 'neriak.ini' or example file 'example_neriak.ini' was found.")
@@ -28,9 +32,10 @@ def main():
 
 
     # Dynamically load the module specified on the command line. Assumes Module and Class name are the same.
-    module = __import__(persona_name)
-    dynamic_persona = getattr(module, persona_name)
-    persona = dynamic_persona.load()
+    persona_module = 'neriak.' + persona_name
+    module = importlib.import_module(persona_module)
+    persona_class = getattr(module, persona_name)
+    persona = persona_class()
 
     # Run the persona under a controller
     controller = Controller(persona)
