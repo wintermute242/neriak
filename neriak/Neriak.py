@@ -4,7 +4,7 @@ import queue
 import threading
 import time
 import re
-import keyboard
+from getpass import getpass
 import configparser
 import os
 
@@ -190,7 +190,10 @@ class Controller():
         agent.start()
         
         # Block until the hotkey combination is detected at which point the program exits
-        keyboard.wait('ctrl+shift+z')
+        while True:
+            response = getpass("Press 'q' and then 'Enter' to exit.\n")
+            if response == "q":
+                break
 
 class Agent:
     """Manages the player agent by listening for events and performing actions."""

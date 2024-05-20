@@ -1,7 +1,8 @@
-from neriak.util.Timer import Timer
+from neriak.util.timer import Timer
 import neriak.Neriak as Neriak
 import sys
 import time
+
 
 
 class LogReader:
@@ -16,7 +17,7 @@ class LogReader:
 
         for trigger in self.triggers:
             if trigger.remote_timer:
-                t = Timer.Timer()
+                t = Timer()
                 t.set_alarm(trigger.remote_timer_max)
                 self.timers[trigger.name] = t
         
