@@ -4,9 +4,10 @@ import queue
 import threading
 import time
 import re
-from getpass import getpass
 import configparser
 import os
+import signal
+import sys
 
 class Persona:
     """
@@ -189,11 +190,13 @@ class Controller():
         reader.start()
         agent.start()
         
-        # Block until the hotkey combination is detected at which point the program exits
+        signal.signal(signal.SIGINT, self.shutdown)
         while True:
-            response = getpass("Press 'q' and then 'Enter' to exit.\n")
-            if response == "q":
-                break
+            reader.join(timeout=1)
+            agent.join(timeout=1)
+
+    def shutdown(self, signum, frame):
+        sys.exit(0)
 
 class Agent:
     """Manages the player agent by listening for events and performing actions."""
