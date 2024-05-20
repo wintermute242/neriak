@@ -28,7 +28,7 @@ class Persona:
                 'neriak.ini'))
         
         # Log setup
-        log_dir = self.config[name]['everquest_log_directory']
+        log_dir = self.config['Default']['everquest_log_directory']
         character_name = self.config[name]['character_name'].lower().capitalize()
         server_name = self.config[name]['server_name'].lower()
         log_file_name = f"eqlog_{character_name}_{server_name}.txt"
@@ -41,7 +41,7 @@ class Persona:
         # are mapped by a common name value.
         self.triggers = []
         self.actions = []
-        self.approved_names = self.config[name]['accept_commands_from'].split(',')
+        self.approved_names = self.config['Default']['accept_commands_from'].split(',')
 
     def add_action(self, action):
         """Registers a new action for the persona"""
