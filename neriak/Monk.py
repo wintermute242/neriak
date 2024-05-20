@@ -1,14 +1,16 @@
-from Neriak import *
-import GameInput, Timer, random
+from neriak.Neriak import Persona, Action, Trigger
+from neriak.util.timer import Timer
+from neriak.util import GameInput
+import random
 
 class Monk(Persona):
     # Initialize the superclass
     def __init__(self):
         super().__init__(name=__name__)
         self.assist_toggle = False
-        self.assist_timer = Timer.Timer()
+        self.assist_timer = Timer()
         self.assist_timer.set_alarm(2)
-        self.avatar_timer = Timer.Timer()
+        self.avatar_timer = Timer()
         self.avatar_timer.set_alarm(230)
 
         # Accept group invite
@@ -20,7 +22,7 @@ class Monk(Persona):
 
         # Avatar proc
         self.new_custom_action('avatar', """Your body screams with the power of an Avatar""", self.action_avatar)
-        self.avatar_timer = Timer.Timer()
+        self.avatar_timer = Timer()
         self.avatar_timer.set_alarm(self.get_config_value('avatar_swap_timer'))
 
         # Assist
@@ -29,7 +31,7 @@ class Monk(Persona):
         self.new_custom_action('assist_off', """(\w+) tells (?:you|the group), '(stop assisting)""", 
             self.action_toggle_assist, command=True)
         self.assist_toggle = False
-        self.assist_timer = Timer.Timer()
+        self.assist_timer = Timer()
         self.assist_timer.set_alarm(2)
 
         # DPS burn
@@ -41,7 +43,7 @@ class Monk(Persona):
 
         # Auto follow after zone
         self.new_custom_action('follow_after_zoning',"""You have entered (.*)""", self.follow_after_zoning)
-        self.zoning_follow_timer = Timer.Timer()
+        self.zoning_follow_timer = Timer()
         self.zoning_follow_timer.set_alarm(self.get_config_value('follow_after_zoning_timer'))
         
         # Dark elf mask
@@ -92,13 +94,13 @@ class Monk(Persona):
         if self.zoning_follow_timer.alarmed():
             action_key = self.get_config_value('follow_on')
             GameInput.send(action_key)
-            print(f"Just zoned. Following.")
+            print("Just zoned. Following.")
             self.zoning_follow_timer.reset()
 
 
 
     def action_avatar(self, action_name, data):
-        print(f"Avatar procced")
+        print("Avatar procced")
         action_key = self.get_config_value('bandolier_primary')
         GameInput.pause(0.2)
         GameInput.send(action_key)
@@ -111,11 +113,11 @@ class Monk(Persona):
             self.assist_timer.set_alarm(random.randint(2,4))
             self.assist_timer.start()
             self.assist_toggle = True
-            print(f"Assist toggle ON")
+            print("Assist toggle ON")
 
         else:
             self.assist_toggle = False
-            print(f"Assist toggle OFF")
+            print("Assist toggle OFF")
 
     def update_combat_status(self, action_name, data):
         """
