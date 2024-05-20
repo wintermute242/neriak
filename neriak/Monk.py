@@ -6,7 +6,7 @@ import random
 class Monk(Persona):
     # Initialize the superclass
     def __init__(self):
-        super().__init__(name=__name__)
+        super().__init__(name=Monk)
         self.assist_toggle = False
         self.assist_timer = Timer()
         self.assist_timer.set_alarm(2)
