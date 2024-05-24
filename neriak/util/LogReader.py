@@ -3,8 +3,6 @@ import neriak.Neriak as Neriak
 import sys
 import time
 
-
-
 class LogReader:
     """
     Designed to run as a producer thread continuously reading the log file and 
